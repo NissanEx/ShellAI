@@ -51,3 +51,4 @@ Proyek ini memanggil Anthropic API langsung dari browser.
 Untuk production, **sangat disarankan** membuat backend proxy agar API key tidak terekspos.
 
 Contoh sederhana dengan Vercel Edge Function: lihat `/api/chat.js` (opsional, tambahkan sendiri).
+# ShellAI
