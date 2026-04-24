@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ai-shell ~ terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- TITLE BAR -->
+<div class="titlebar">
+  <div class="dots">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+  </div>
+  <div class="tab-title">san@ai-shell: ~ — bash</div>
+  <div class="status-bar">
+    <span><div class="status-dot"></div> connected</span>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="workspace" id="workspace">
+
+  <!-- LEFT: TERMINAL -->
+  <div class="left-col">
+
+    <div class="suggestions" id="suggestions">
+      <button class="sug" onclick="useSug(this)">apa itu AI?</button>
+      <button class="sug code-sug" onclick="useSug(this)">code: kalkulator python</button>
+      <button class="sug code-sug" onclick="useSug(this)">code: html landing page</button>
+      <button class="sug img-sug" onclick="useSug(this)">image: sunset over ocean</button>
+      <button class="sug" onclick="useSug(this)">help</button>
+    </div>
+
+    <div class="terminal" id="terminal">
+      <div class="boot">
+<span class="hi">AI Shell v2.0.0</span> — <span class="ver">claude-sonnet-4</span>
+Ketik pertanyaan biasa, atau gunakan prefix:
+  <span style="color:var(--purple)">code:</span> [deskripsi]   — generate kode → tampil di panel kanan
+  <span style="color:var(--yellow)">image:</span> [deskripsi]  — generate gambar SVG → tampil di panel kanan
+  <span style="color:var(--muted)">clear / help</span>
+────────────────────────────────────────────
+      </div>
+    </div>
+
+    <div class="input-line">
+      <span class="ps1-live">
+        <span class="ps1-user">san</span><span class="ps1-at">@</span><span class="ps1-host">ai-shell</span><span class="ps1-colon">:</span><span class="ps1-path">~</span><span class="ps1-sign"> $</span>
+      </span>
+      <input type="text" id="cmdInput" placeholder="ketik pesan, 'code: ...' atau 'image: ...'" autofocus autocomplete="off" spellcheck="false">
+    </div>
+
+  </div>
+
+  <!-- RESIZE HANDLE -->
+  <div class="resize-handle" id="resizeHandle"></div>
+
+  <!-- RIGHT: OUTPUT PANEL -->
+  <div class="output-panel" id="outputPanel">
+
+    <div class="panel-topbar">
+      <div class="panel-tabs">
+        <div class="ptab active" id="tabCode"    onclick="switchTab('code')">{ } Code</div>
+        <div class="ptab"        id="tabPreview" onclick="switchTab('preview')">▶ Preview</div>
+        <div class="ptab"        id="tabImage"   onclick="switchTab('image')">⬡ Image</div>
+      </div>
+      <button class="panel-close" onclick="closePanel()">✕ close</button>
+    </div>
+
+    <div class="panel-content">
+
+      <!-- CODE VIEW -->
+      <div class="code-view active" id="codeView">
+        <div class="code-header">
+          <span class="code-lang" id="codeLang">PYTHON</span>
+          <div class="code-actions">
+            <button class="code-btn"     onclick="copyCode()">copy</button>
+            <button class="code-btn run" onclick="runPreview()">▶ run</button>
+          </div>
+        </div>
+        <pre id="codeDisplay"><span style="color:var(--muted)">// kode akan muncul di sini...</span></pre>
+      </div>
+
+      <!-- PREVIEW VIEW -->
+      <div class="preview-view" id="previewView">
+        <div class="preview-header">
+          <div class="preview-dot"></div>
+          <span>Live Preview</span>
+          <span style="margin-left:auto;cursor:pointer;color:var(--cyan)" onclick="reloadPreview()">↺ reload</span>
+        </div>
+        <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+
+      <!-- IMAGE VIEW -->
+      <div class="image-view" id="imageView">
+        <div class="image-header">
+          <span>⬡ Image Output</span>
+          <span id="imagePromptLabel" style="color:var(--yellow);margin-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px"></span>
+          <span id="imgDownload" style="margin-left:auto;cursor:pointer;color:var(--cyan);display:none" onclick="downloadSvg()">↓ save</span>
+        </div>
+        <div class="image-body" id="imageBody">
+          <div class="image-placeholder" id="imgPlaceholder">
+            <div class="icon">⬡</div>
+            <div>Gunakan <span style="color:var(--yellow)">image:</span> untuk generate ilustrasi</div>
+          </div>
+          <div class="generating" id="generatingOverlay">
+            <div class="spin"></div>
+            <span>Generating SVG illustration...</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
