@@ -17,8 +17,6 @@
             --purple: #bc8cff;
             --white: #e6edf3;
             --muted: #8b949e;
-            --prompt-host: #39d353;
-            --prompt-path: #e3b341;
             --app-height: 100vh;
         }
 
@@ -47,118 +45,157 @@
             align-items: center;
             padding: 0 12px;
             z-index: 100;
-            overflow: hidden;
-            white-space: nowrap;
+            gap: 8px;
         }
         .dots { display: flex; gap: 5px; flex-shrink: 0; }
         .dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.4; }
-        .red    { background: var(--red); }
-        .yellow { background: var(--yellow); }
-        .green  { background: var(--green); }
+        .dot.red    { background: var(--red); }
+        .dot.yellow { background: var(--yellow); }
+        .dot.green  { background: var(--green); }
         .tab-title { font-size: 10px; color: var(--muted); flex-grow: 1; text-align: center; letter-spacing: 0.3px; }
-
-        .workspace {
-            display: flex;
-            height: calc(var(--app-height) - 32px);
-            width: 100%;
+        .key-status {
+            font-size: 9px; color: var(--muted);
+            display: flex; align-items: center; gap: 4px;
+            cursor: pointer; padding: 3px 6px;
+            border: 1px solid var(--border); border-radius: 3px;
+            transition: border-color 0.15s, color 0.15s; flex-shrink: 0;
         }
-
-        .left-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            background: var(--bg);
+        .key-status:hover { border-color: var(--cyan); color: var(--cyan); }
+        .key-status .dot-status { width: 5px; height: 5px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+        .key-status .dot-status.active { background: var(--green); }
+        .model-badge {
+            font-size: 9px; color: var(--purple);
+            border: 1px solid var(--border); border-radius: 3px;
+            padding: 3px 7px; cursor: pointer; flex-shrink: 0;
+            transition: border-color 0.15s; white-space: nowrap;
         }
+        .model-badge:hover { border-color: var(--purple); }
 
-        #terminal {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-            scroll-behavior: smooth;
+        /* OVERLAY */
+        #keyOverlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 16px; overflow-y: auto;
         }
-
-        .line { margin-bottom: 8px; line-height: 1.4; word-break: break-word; }
-        .ps1      { color: var(--prompt-host); font-weight: 600; }
-        .ps1-path { color: var(--prompt-path); }
-        .user-cmd { color: var(--white); margin-left: 6px; }
-
-        .response {
-            padding: 0 6px;
-            margin-top: 2px;
-            color: var(--white);
-            opacity: 0.85;
-            font-size: 12.5px;
-        }
-
-        .inline-output {
-            background: rgba(255,255,255,0.02);
+        #keyOverlay.hidden { display: none; }
+        .key-modal {
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 4px;
-            margin-top: 8px;
-            overflow: hidden;
-            max-width: 100%;
+            border-radius: 6px;
+            padding: 22px 20px;
+            width: 100%; max-width: 480px;
+            margin: auto;
         }
-        .output-content {
-            max-height: 350px;
-            overflow: auto;
-            padding: 10px;
-            font-size: 11.5px;
+        .key-modal h2 { font-size: 13px; color: var(--cyan); margin-bottom: 4px; letter-spacing: 0.5px; }
+        .key-modal p  { font-size: 10px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+        .key-modal p a { color: var(--purple); text-decoration: none; }
+        .key-modal p a:hover { text-decoration: underline; }
+
+        .field-label {
+            font-size: 9px; color: var(--muted);
+            letter-spacing: 0.5px; margin-bottom: 7px; text-transform: uppercase;
         }
+
+        .provider-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+        .ptab {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--muted); font-family: inherit; font-size: 9px;
+            padding: 4px 10px; border-radius: 3px; cursor: pointer;
+            transition: all 0.15s; white-space: nowrap;
+        }
+        .ptab:hover { border-color: var(--muted); color: var(--white); }
+        .ptab.active { border-color: var(--cyan); color: var(--cyan); }
+
+        .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 14px; }
+        .model-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 4px; padding: 9px 10px; cursor: pointer; transition: border-color 0.15s;
+        }
+        .model-card:hover { border-color: var(--muted); }
+        .model-card.selected { border-color: var(--cyan); }
+        .model-card .model-name { font-size: 10px; color: var(--white); margin-bottom: 3px; }
+        .model-card .model-tag {
+            font-size: 8px; color: var(--muted);
+            display: inline-block; border: 1px solid var(--border);
+            padding: 1px 5px; border-radius: 2px; margin-bottom: 4px;
+        }
+        .model-card.selected .model-tag { border-color: var(--cyan); color: var(--cyan); }
+        .model-card .model-desc { font-size: 9px; color: var(--muted); line-height: 1.4; }
+        .free-badge {
+            font-size: 7px; background: rgba(57,211,83,0.12); color: var(--green);
+            border: 1px solid rgba(57,211,83,0.3); border-radius: 2px;
+            padding: 1px 4px; margin-left: 4px; vertical-align: middle;
+        }
+
+        .key-input-wrap { display: flex; gap: 8px; margin-bottom: 10px; }
+        #apiKeyInput {
+            flex: 1; background: var(--bg); border: 1px solid var(--border);
+            color: var(--white); font-family: inherit; font-size: 12px;
+            padding: 8px 10px; border-radius: 4px; outline: none;
+            transition: border-color 0.15s; min-width: 0;
+        }
+        #apiKeyInput:focus { border-color: var(--cyan); }
+        #apiKeyInput::placeholder { color: var(--muted); }
+        .btn-save {
+            background: var(--cyan); color: var(--bg); border: none;
+            padding: 8px 14px; border-radius: 4px; font-family: inherit;
+            font-size: 11px; font-weight: 600; cursor: pointer;
+            transition: opacity 0.15s; flex-shrink: 0;
+        }
+        .btn-save:hover { opacity: 0.85; }
+        .key-note {
+            font-size: 9px; color: var(--muted); line-height: 1.5;
+            padding: 7px 10px; background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border); border-radius: 4px;
+        }
+        .key-note span { color: var(--yellow); }
+        #keyError { font-size: 10px; color: var(--red); margin-top: 8px; min-height: 14px; }
+
+        .workspace { display: flex; height: calc(var(--app-height) - 32px); width: 100%; }
+        .left-col { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
+        #terminal { flex: 1; overflow-y: auto; padding: 12px; scroll-behavior: smooth; }
+        .line { margin-bottom: 8px; line-height: 1.4; word-break: break-word; }
+        .ps1      { color: var(--green); font-weight: 600; }
+        .ps1-path { color: var(--yellow); }
+        .user-cmd { color: var(--white); margin-left: 6px; }
+        .response { padding: 0 6px; margin-top: 2px; color: var(--white); opacity: 0.85; font-size: 12.5px; }
+        .inline-output {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            border-radius: 4px; margin-top: 8px; overflow: hidden; max-width: 100%;
+        }
+        .output-content { max-height: 350px; overflow: auto; padding: 10px; font-size: 11.5px; }
         .output-content pre { color: var(--cyan); white-space: pre-wrap; line-height: 1.3; }
         .output-content svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
         .suggestions {
-            display: flex;
-            gap: 6px;
-            padding: 8px 12px;
-            overflow-x: auto;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            scrollbar-width: none;
-            flex-shrink: 0;
+            display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto;
+            background: var(--surface); border-top: 1px solid var(--border);
+            scrollbar-width: none; flex-shrink: 0;
         }
         .suggestions::-webkit-scrollbar { display: none; }
         .sug {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 4px 10px;
-            border-radius: 3px;
-            font-size: 10px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-family: inherit;
-            transition: border-color 0.15s, color 0.15s;
+            background: transparent; border: 1px solid var(--border); color: var(--muted);
+            padding: 4px 10px; border-radius: 3px; font-size: 10px; cursor: pointer;
+            white-space: nowrap; font-family: inherit; transition: border-color 0.15s, color 0.15s;
         }
         .sug:hover { border-color: var(--cyan); color: var(--cyan); }
 
         .input-line {
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            gap: 8px;
-            flex-shrink: 0;
+            display: flex; align-items: center; padding: 10px 12px;
+            background: var(--surface); border-top: 1px solid var(--border);
+            gap: 8px; flex-shrink: 0;
         }
         .cursor-prompt { color: var(--cyan); font-weight: bold; font-size: 12px; flex-shrink: 0; }
         #cmdInput {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--white);
-            font-family: inherit;
-            font-size: 14px;
-            outline: none;
-            min-width: 0;
+            flex: 1; background: transparent; border: none; color: var(--white);
+            font-family: inherit; font-size: 14px; outline: none; min-width: 0;
         }
         #cmdInput::placeholder { color: var(--muted); }
 
-        .loading-dots::after {
-            content: '.';
-            animation: dots 1.5s steps(5, end) infinite;
-        }
+        .loading-dots::after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
         @keyframes dots {
             0%,20%  { content: '.'; }
             40%     { content: '..'; }
@@ -168,7 +205,6 @@
 
         @media (max-width: 768px) {
             body { font-size: 11px; }
-            .tab-title { font-size: 9px; }
             #terminal { padding: 8px 10px; }
             .line { margin-bottom: 6px; font-size: 11px; }
             .response { font-size: 11px; }
@@ -176,10 +212,40 @@
             .input-line { padding: 8px 10px; }
             .suggestions { padding: 5px 10px; gap: 5px; }
             .sug { font-size: 9px; padding: 3px 8px; }
+            .key-modal { padding: 16px 14px; }
+            .model-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
+
+<div id="keyOverlay">
+    <div class="key-modal">
+        <h2 id="modalTitle">// pilih model ai</h2>
+        <p id="modalDesc">Pilih provider dan model, lalu masukkan API key untuk mulai.</p>
+
+        <div class="field-label">provider</div>
+        <div class="provider-tabs" id="providerTabs">
+            <button class="ptab active" data-provider="gemini"    onclick="switchProvider('gemini')">Google Gemini</button>
+            <button class="ptab"        data-provider="groq"      onclick="switchProvider('groq')">Groq (Free)</button>
+            <button class="ptab"        data-provider="openai"    onclick="switchProvider('openai')">OpenAI</button>
+            <button class="ptab"        data-provider="anthropic" onclick="switchProvider('anthropic')">Anthropic</button>
+        </div>
+
+        <div class="field-label">model</div>
+        <div class="model-grid" id="modelGrid"></div>
+
+        <div class="field-label" id="keyLabel">api key</div>
+        <div class="key-input-wrap">
+            <input type="password" id="apiKeyInput" placeholder="..." autocomplete="off" spellcheck="false">
+            <button class="btn-save" onclick="saveApiKey()">connect</button>
+        </div>
+        <div class="key-note">
+            <span>⚠ Keamanan:</span> Key disimpan di <code style="color:var(--cyan)">sessionStorage</code> — tidak dikirim ke server mana pun. Terhapus saat tab ditutup.
+        </div>
+        <div id="keyError"></div>
+    </div>
+</div>
 
 <div class="titlebar">
     <div class="dots">
@@ -187,7 +253,12 @@
         <div class="dot yellow"></div>
         <div class="dot green"></div>
     </div>
-    <div class="tab-title">san@ai-terminal: ~</div>
+    <div class="tab-title">ai-shell ~ terminal</div>
+    <div class="key-status" onclick="showKeyOverlay()" title="Ganti Key / Model">
+        <div class="dot-status" id="statusDot"></div>
+        <span id="statusLabel">no key</span>
+    </div>
+    <div class="model-badge" id="modelBadge" onclick="showKeyOverlay()">-</div>
 </div>
 
 <div class="workspace">
@@ -198,155 +269,446 @@
                 <span class="user-cmd">sistem siap.</span>
             </div>
             <div class="line response" style="color:var(--muted); font-size:11px">
-                Terhubung ke Claude via /api/chat &mdash;
+                Multi-provider AI terminal &mdash;
                 ketik pertanyaan, <span style="color:var(--purple)">code:</span> untuk kode,
                 <span style="color:var(--yellow)">image:</span> untuk SVG.
             </div>
         </div>
-
         <div class="suggestions">
             <button class="sug" onclick="useSug('apa itu machine learning?')">tanya AI</button>
             <button class="sug" onclick="useSug('code: kalkulator python')">code: calc</button>
             <button class="sug" onclick="useSug('image: abstract tech logo')">image: logo</button>
             <button class="sug" onclick="clearTerminal()">clear</button>
         </div>
-
         <div class="input-line">
             <span class="cursor-prompt">❯</span>
-            <input type="text" id="cmdInput" placeholder="ketik pesan..." autocomplete="off" spellcheck="false" autofocus>
+            <input type="text" id="cmdInput" placeholder="ketik pesan..." autocomplete="off" spellcheck="false">
         </div>
     </div>
 </div>
 
 <script>
-    const cmdInput = document.getElementById('cmdInput');
-    const terminal = document.getElementById('terminal');
-
-    // Mobile height fix
-    function setHeight() {
-        const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-        document.documentElement.style.setProperty('--app-height', `${h}px`);
+/* ═══ PROVIDER CONFIG ═══ */
+const PROVIDERS = {
+    gemini: {
+        name: 'Google Gemini',
+        keyPlaceholder: 'AIzaSy...',
+        keyLabel: 'Google AI Studio API Key',
+        keyLink: 'https://aistudio.google.com/app/apikey',
+        keyLinkLabel: 'aistudio.google.com/app/apikey',
+        models: [
+            { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', tag: 'terbaru', free: true,
+              desc: 'Model terbaru Google, cepat & gratis via AI Studio.',
+              info: 'Generasi terbaru Google DeepMind. Multimodal, context panjang, dan gratis untuk developer.',
+              link: 'https://ai.google.dev/gemini-api/docs/models', linkLabel: 'ai.google.dev/gemini-api/docs' },
+            { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash Lite', tag: 'ultra ringan', free: true,
+              desc: 'Varian terkecil Gemini 2.0, latensi sangat rendah, gratis.',
+              info: 'Paling hemat resource dari Gemini 2.0. Ideal untuk chatbot real-time dengan biaya nol.',
+              link: 'https://ai.google.dev/gemini-api/docs/models', linkLabel: 'ai.google.dev/gemini-api/docs' },
+            { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', tag: 'andal', free: true,
+              desc: 'Context window 1M token, gratis dengan rate limit murah hati.',
+              info: 'Workhorse Gemini. Context window 1 juta token, gratis, dan sangat andal untuk semua tugas.',
+              link: 'https://ai.google.dev/gemini-api/docs/models', linkLabel: 'ai.google.dev/gemini-api/docs' },
+            { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', tag: 'canggih', free: false,
+              desc: 'Flagship Google dengan 2M token context, analisis mendalam.',
+              info: 'Model Pro dengan context window 2 juta token. Terbaik untuk dokumen panjang dan riset.',
+              link: 'https://ai.google.dev/gemini-api/docs/models', linkLabel: 'ai.google.dev/gemini-api/docs' },
+        ]
+    },
+    groq: {
+        name: 'Groq',
+        keyPlaceholder: 'gsk_...',
+        keyLabel: 'Groq API Key',
+        keyLink: 'https://console.groq.com/keys',
+        keyLinkLabel: 'console.groq.com/keys',
+        models: [
+            { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', tag: 'powerful', free: true,
+              desc: 'Meta Llama 70B di chip Groq LPU — gratis & super cepat.',
+              info: 'Model open-source terbaik Meta, dieksekusi di hardware Groq LPU. Gratis dan sangat kencang.',
+              link: 'https://console.groq.com/docs/models', linkLabel: 'console.groq.com/docs/models' },
+            { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B', tag: 'instan', free: true,
+              desc: 'Llama kecil dengan latensi hampir nol, gratis.',
+              info: 'Llama 3.1 versi ringan di Groq. Respons hampir instan, cocok untuk chat real-time.',
+              link: 'https://console.groq.com/docs/models', linkLabel: 'console.groq.com/docs/models' },
+            { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B', tag: 'MoE', free: true,
+              desc: 'Mistral Mixture-of-Experts, andal untuk coding & analisis, gratis.',
+              info: 'Arsitektur Mixture of Experts dari Mistral AI. Kualitas tinggi untuk coding, gratis di Groq.',
+              link: 'https://console.groq.com/docs/models', linkLabel: 'console.groq.com/docs/models' },
+            { id: 'gemma2-9b-it', label: 'Gemma 2 9B', tag: 'Google open', free: true,
+              desc: 'Model open-source Google DeepMind, ringan & gratis di Groq.',
+              info: 'Gemma 2 dari Google, dioptimasi untuk instruksi. Open-weight, gratis, dan efisien.',
+              link: 'https://console.groq.com/docs/models', linkLabel: 'console.groq.com/docs/models' },
+        ]
+    },
+    openai: {
+        name: 'OpenAI',
+        keyPlaceholder: 'sk-...',
+        keyLabel: 'OpenAI API Key',
+        keyLink: 'https://platform.openai.com/api-keys',
+        keyLinkLabel: 'platform.openai.com/api-keys',
+        models: [
+            { id: 'gpt-4o-mini', label: 'GPT-4o Mini', tag: 'hemat', free: false,
+              desc: 'Versi mini GPT-4o, murah & cepat untuk tugas umum.',
+              info: 'Model paling terjangkau OpenAI dengan kualitas GPT-4o. Ideal untuk produksi skala besar.',
+              link: 'https://platform.openai.com/docs/models/gpt-4o-mini', linkLabel: 'platform.openai.com/docs/models' },
+            { id: 'gpt-4o', label: 'GPT-4o', tag: 'flagship', free: false,
+              desc: 'Model utama OpenAI, multimodal, sangat cerdas.',
+              info: 'Flagship OpenAI. Kemampuan teks, gambar, dan audio dalam satu model.',
+              link: 'https://platform.openai.com/docs/models/gpt-4o', linkLabel: 'platform.openai.com/docs/models' },
+            { id: 'o4-mini', label: 'o4 Mini', tag: 'reasoning', free: false,
+              desc: 'Model reasoning terbaru OpenAI, unggul di logika & math.',
+              info: 'Reasoning model generasi terbaru. Sangat kuat untuk matematika, coding, dan analisis logis.',
+              link: 'https://platform.openai.com/docs/models', linkLabel: 'platform.openai.com/docs/models' },
+            { id: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', tag: 'klasik', free: false,
+              desc: 'Veteran OpenAI yang stabil & sangat murah.',
+              info: 'Model klasik yang andal. Paling murah di OpenAI, cukup untuk chat dan scripting sederhana.',
+              link: 'https://platform.openai.com/docs/models/gpt-3-5', linkLabel: 'platform.openai.com/docs/models' },
+        ]
+    },
+    anthropic: {
+        name: 'Anthropic',
+        keyPlaceholder: 'sk-ant-api03-...',
+        keyLabel: 'Anthropic API Key',
+        keyLink: 'https://console.anthropic.com/keys',
+        keyLinkLabel: 'console.anthropic.com/keys',
+        models: [
+            { id: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5', tag: 'paling cepat', free: false,
+              desc: 'Tercepat & terhemat Anthropic untuk chat ringan.',
+              info: 'Respons instan dengan biaya rendah. Ideal untuk percakapan dan tanya-jawab sehari-hari.',
+              link: 'https://www.anthropic.com/claude/haiku', linkLabel: 'anthropic.com/claude/haiku' },
+            { id: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6', tag: 'seimbang', free: false,
+              desc: 'Keseimbangan sempurna kecerdasan & kecepatan.',
+              info: 'Model andalan Anthropic. Cerdas, cepat, dan efisien untuk coding dan analisis.',
+              link: 'https://www.anthropic.com/claude/sonnet', linkLabel: 'anthropic.com/claude/sonnet' },
+            { id: 'claude-opus-4-6', label: 'Claude Opus 4.6', tag: 'terkuat', free: false,
+              desc: 'Model paling canggih Anthropic untuk tugas berat.',
+              info: 'Penalaran mendalam dan nuansa tinggi. Terbaik untuk riset dan analisis kompleks.',
+              link: 'https://www.anthropic.com/claude/opus', linkLabel: 'anthropic.com/claude/opus' },
+            { id: 'claude-sonnet-4-5', label: 'Claude Sonnet 4.5', tag: 'stabil', free: false,
+              desc: 'Versi Sonnet sebelumnya, andal untuk coding.',
+              info: 'Versi stabil dan teruji. Solid untuk coding, pembuatan konten, dan analisis.',
+              link: 'https://www.anthropic.com/claude/sonnet', linkLabel: 'anthropic.com/claude/sonnet' },
+        ]
     }
-    window.addEventListener('resize', setHeight);
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', setHeight);
-        window.visualViewport.addEventListener('scroll', () => window.scrollTo(0, 0));
-    }
-    setHeight();
+};
 
-    // Enter handler
-    cmdInput.addEventListener('keydown', async (e) => {
-        if (e.key !== 'Enter') return;
-        const val = cmdInput.value.trim();
-        if (!val) return;
-        cmdInput.value = '';
-        if (val.toLowerCase() === 'clear') { clearTerminal(); return; }
-        addLog(val, 'user');
-        await processCommand(val);
+/* ═══ STATE ═══ */
+let currentProvider = sessionStorage.getItem('ai_provider') || 'gemini';
+let currentModelId  = sessionStorage.getItem('ai_model')    || 'gemini-2.0-flash';
+
+const cmdInput   = document.getElementById('cmdInput');
+const terminal   = document.getElementById('terminal');
+const keyOverlay = document.getElementById('keyOverlay');
+const statusDot  = document.getElementById('statusDot');
+const statusLabel= document.getElementById('statusLabel');
+const modelBadge = document.getElementById('modelBadge');
+
+/* ── Height fix ── */
+function setHeight() {
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${h}px`);
+}
+window.addEventListener('resize', setHeight);
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', setHeight);
+    window.visualViewport.addEventListener('scroll', () => window.scrollTo(0, 0));
+}
+setHeight();
+
+/* ── Key helpers ── */
+function keyFor(p) { return sessionStorage.getItem('key_' + p) || ''; }
+function getApiKey() { return keyFor(currentProvider); }
+
+function updateKeyStatus() {
+    const key = getApiKey();
+    if (key) {
+        statusDot.classList.add('active');
+        statusLabel.textContent = key.slice(0,6) + '***' + key.slice(-3);
+    } else {
+        statusDot.classList.remove('active');
+        statusLabel.textContent = 'no key';
+    }
+}
+
+/* ── Provider switch ── */
+function switchProvider(pid) {
+    currentProvider = pid;
+    sessionStorage.setItem('ai_provider', pid);
+    document.querySelectorAll('.ptab').forEach(t =>
+        t.classList.toggle('active', t.dataset.provider === pid)
+    );
+    const ids = PROVIDERS[pid].models.map(m => m.id);
+    if (!ids.includes(currentModelId)) {
+        currentModelId = ids[0];
+        sessionStorage.setItem('ai_model', currentModelId);
+    }
+    renderModelCards(pid);
+    updateModalDesc();
+    updateKeyStatus();
+    const p = PROVIDERS[pid];
+    document.getElementById('apiKeyInput').placeholder = p.keyPlaceholder;
+    document.getElementById('apiKeyInput').value = '';
+    document.getElementById('keyError').textContent = '';
+    document.getElementById('keyLabel').textContent = p.keyLabel;
+}
+
+/* ── Model cards ── */
+function renderModelCards(pid) {
+    const grid = document.getElementById('modelGrid');
+    grid.innerHTML = '';
+    PROVIDERS[pid].models.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'model-card' + (m.id === currentModelId ? ' selected' : '');
+        card.dataset.model = m.id;
+        card.onclick = () => selectModel(card, m.id);
+        card.innerHTML = `
+            <div class="model-name">${m.label}${m.free ? '<span class="free-badge">FREE</span>' : ''}</div>
+            <div class="model-tag">${m.tag}</div>
+            <div class="model-desc">${m.desc}</div>
+        `;
+        grid.appendChild(card);
     });
+}
 
-    document.body.addEventListener('click', (e) => {
-        if (!e.target.closest('.sug')) cmdInput.focus();
-    });
+function selectModel(card, modelId) {
+    currentModelId = modelId;
+    sessionStorage.setItem('ai_model', modelId);
+    document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    updateModalDesc();
+    updateBadge();
+}
 
-    function escHtml(t) {
-        return String(t)
-            .replace(/&/g,'&amp;')
-            .replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;');
-    }
+/* ── Modal desc (changes with model & provider) ── */
+function updateModalDesc() {
+    const p = PROVIDERS[currentProvider];
+    const m = p.models.find(x => x.id === currentModelId) || p.models[0];
+    document.getElementById('modalTitle').textContent = '// ' + m.label.toLowerCase();
+    document.getElementById('modalDesc').innerHTML = `
+        <span style="color:var(--muted)">${m.info}</span>
+        &nbsp;<span style="${m.free ? 'color:var(--green)' : 'color:var(--yellow)'};font-size:9px">${m.free ? '✓ Gratis' : '● Berbayar'}</span>
+        <br><br>
+        Key disimpan di <code style="color:var(--cyan)">sessionStorage</code> — tidak dikirim ke server mana pun.<br><br>
+        Pelajari model: <a href="${m.link}" target="_blank">${m.linkLabel}</a> &nbsp;·&nbsp;
+        Dapatkan key: <a href="${p.keyLink}" target="_blank">${p.keyLinkLabel}</a>
+    `;
+}
 
-    function addLog(text, role) {
-        const line = document.createElement('div');
-        if (role === 'user') {
-            line.className = 'line';
-            line.innerHTML = `<span class="ps1">visitor</span>:<span class="ps1-path">~</span>$ <span class="user-cmd">${escHtml(text)}</span>`;
-        } else {
-            line.className = 'line response';
-            line.innerHTML = text;
-        }
-        terminal.appendChild(line);
-        terminal.scrollTop = terminal.scrollHeight;
-        return line;
-    }
+function updateBadge() {
+    const p = PROVIDERS[currentProvider];
+    const m = p.models.find(x => x.id === currentModelId) || p.models[0];
+    modelBadge.textContent = m.label;
+}
 
-    async function processCommand(cmd) {
-        const loadingLine = document.createElement('div');
-        loadingLine.className = 'line response';
-        loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted);font-size:11px">memproses</span>`;
-        terminal.appendChild(loadingLine);
-        terminal.scrollTop = terminal.scrollHeight;
+/* ── Show overlay ── */
+function showKeyOverlay() {
+    document.getElementById('keyError').textContent = '';
+    document.getElementById('apiKeyInput').value = '';
+    keyOverlay.classList.remove('hidden');
+    document.querySelectorAll('.ptab').forEach(t =>
+        t.classList.toggle('active', t.dataset.provider === currentProvider)
+    );
+    renderModelCards(currentProvider);
+    updateModalDesc();
+    const p = PROVIDERS[currentProvider];
+    document.getElementById('apiKeyInput').placeholder = p.keyPlaceholder;
+    document.getElementById('keyLabel').textContent = p.keyLabel;
+    setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
+}
 
-        try {
-            const isCode = cmd.toLowerCase().startsWith('code:');
-            const isImg  = cmd.toLowerCase().startsWith('image:');
+/* ── Save key ── */
+function saveApiKey() {
+    const raw = document.getElementById('apiKeyInput').value.trim();
+    const errEl = document.getElementById('keyError');
+    if (!raw) { errEl.textContent = 'Key tidak boleh kosong.'; return; }
+    sessionStorage.setItem('key_' + currentProvider, raw);
+    updateKeyStatus();
+    keyOverlay.classList.add('hidden');
+    cmdInput.focus();
+    const p = PROVIDERS[currentProvider];
+    const m = p.models.find(x => x.id === currentModelId) || p.models[0];
+    addLog(`Tersambung ke <span style="color:var(--cyan)">${p.name}</span> · <span style="color:var(--purple)">${m.label}</span>`, 'ai');
+}
 
-            let sys = 'Kamu adalah asisten AI. Jawab singkat dan jelas dalam Bahasa Indonesia. Teks biasa, tanpa markdown.';
-            if (isCode) sys = 'Kamu adalah code generator. Berikan HANYA kode saja, tanpa penjelasan dan tanpa markdown code fence (```).';
-            if (isImg)  sys = 'Kamu adalah SVG generator. Berikan HANYA kode SVG mentah (600x400) yang indah, tanpa penjelasan apa pun.';
+document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveApiKey();
+});
 
-            const resp = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: cmd, systemInstruction: sys })
-            });
+/* ── Init ── */
+renderModelCards(currentProvider);
+updateModalDesc();
+updateBadge();
+updateKeyStatus();
+if (!getApiKey()) showKeyOverlay();
 
-            const data = await resp.json();
-
-            // Error dari backend
-            if (data.error) {
-                const errMsg = typeof data.error === 'object'
-                    ? JSON.stringify(data.error, null, 2)
-                    : data.error;
-                throw new Error(errMsg);
-            }
-
-            // ── Parse Claude response ──
-            // Format Claude: { content: [ { type: "text", text: "..." } ] }
-            const result = data?.content?.[0]?.text;
-            if (!result) throw new Error('Response kosong dari AI');
-
-            loadingLine.remove();
-
-            if (isCode) {
-                const cleanCode = result.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
-                addLog('Hasil kode:', 'ai');
-                const container = document.createElement('div');
-                container.className = 'inline-output';
-                container.innerHTML = `<div class="output-content"><pre>${escHtml(cleanCode)}</pre></div>`;
-                terminal.appendChild(container);
-
-            } else if (isImg) {
-                const svgMatch = result.match(/<svg[\s\S]*?<\/svg>/i);
-                addLog('Hasil visual:', 'ai');
-                const container = document.createElement('div');
-                container.className = 'inline-output';
-                container.innerHTML = `<div class="output-content">${
-                    svgMatch ? svgMatch[0] : '<span style="color:var(--red)">Gagal parse SVG.</span>'
-                }</div>`;
-                terminal.appendChild(container);
-
-            } else {
-                addLog(escHtml(result), 'ai');
-            }
-
-            terminal.scrollTop = terminal.scrollHeight;
-
-        } catch (err) {
-            loadingLine.innerHTML = `<span style="color:var(--red)">Ralat: ${escHtml(err.message)}</span>`;
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-    }
-
-    function clearTerminal() {
-        terminal.innerHTML = `<div class="line response" style="color:var(--muted);font-size:11px">Terminal dibersihkan.</div>`;
-    }
-
-    function useSug(text) {
-        cmdInput.value = text;
+/* ═══ TERMINAL ═══ */
+document.body.addEventListener('click', (e) => {
+    if (!e.target.closest('.sug') && !e.target.closest('#keyOverlay') &&
+        !e.target.closest('.key-status') && !e.target.closest('.model-badge'))
         cmdInput.focus();
-    }
-</script>
+});
 
+function escHtml(t) {
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addLog(text, role) {
+    const line = document.createElement('div');
+    if (role === 'user') {
+        line.className = 'line';
+        line.innerHTML = `<span class="ps1">visitor</span>:<span class="ps1-path">~</span>$ <span class="user-cmd">${escHtml(text)}</span>`;
+    } else {
+        line.className = 'line response';
+        line.innerHTML = text;
+    }
+    terminal.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+    return line;
+}
+
+cmdInput.addEventListener('keydown', async (e) => {
+    if (e.key !== 'Enter') return;
+    const val = cmdInput.value.trim();
+    if (!val) return;
+    cmdInput.value = '';
+    if (val.toLowerCase() === 'clear') { clearTerminal(); return; }
+    if (!getApiKey()) { showKeyOverlay(); return; }
+    addLog(val, 'user');
+    await processCommand(val);
+});
+
+/* ═══ API CALL ═══ */
+async function processCommand(cmd) {
+    const loadingLine = document.createElement('div');
+    loadingLine.className = 'line response';
+    loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted);font-size:11px">memproses</span>`;
+    terminal.appendChild(loadingLine);
+    terminal.scrollTop = terminal.scrollHeight;
+
+    try {
+        const isCode = cmd.toLowerCase().startsWith('code:');
+        const isImg  = cmd.toLowerCase().startsWith('image:');
+        let sys = 'Kamu adalah asisten AI. Jawab singkat dan jelas dalam Bahasa Indonesia. Teks biasa, tanpa markdown.';
+        if (isCode) sys = 'Kamu adalah code generator. Berikan HANYA kode saja, tanpa penjelasan dan tanpa markdown code fence.';
+        if (isImg)  sys = 'Kamu adalah SVG generator. Berikan HANYA kode SVG mentah (600x400) yang indah, tanpa penjelasan apa pun.';
+
+        const result = await callProvider(currentProvider, currentModelId, sys, cmd);
+        loadingLine.remove();
+
+        if (isCode) {
+            const cleanCode = result.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+            addLog('Hasil kode:', 'ai');
+            const c = document.createElement('div');
+            c.className = 'inline-output';
+            c.innerHTML = `<div class="output-content"><pre>${escHtml(cleanCode)}</pre></div>`;
+            terminal.appendChild(c);
+        } else if (isImg) {
+            const svgMatch = result.match(/<svg[\s\S]*?<\/svg>/i);
+            addLog('Hasil visual:', 'ai');
+            const c = document.createElement('div');
+            c.className = 'inline-output';
+            c.innerHTML = `<div class="output-content">${svgMatch ? svgMatch[0] : '<span style="color:var(--red)">Gagal parse SVG.</span>'}</div>`;
+            terminal.appendChild(c);
+        } else {
+            addLog(escHtml(result), 'ai');
+        }
+        terminal.scrollTop = terminal.scrollHeight;
+
+    } catch (err) {
+        loadingLine.innerHTML = `<span style="color:var(--red)">Ralat: ${escHtml(err.message)}</span>`;
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+}
+
+async function callProvider(provider, modelId, system, userMsg) {
+    const key = keyFor(provider);
+
+    if (provider === 'gemini') {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${key}`;
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                system_instruction: { parts: [{ text: system }] },
+                contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+                generationConfig: { maxOutputTokens: 1024 }
+            })
+        });
+        if (!resp.ok) {
+            const e = await resp.json().catch(() => ({}));
+            if (resp.status === 400 || resp.status === 401 || resp.status === 403) {
+                sessionStorage.removeItem('key_gemini'); updateKeyStatus();
+                throw new Error('API key Gemini tidak valid. Klik status di atas untuk ganti.');
+            }
+            throw new Error(e?.error?.message || resp.statusText);
+        }
+        const data = await resp.json();
+        return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Response kosong';
+    }
+
+    if (provider === 'groq') {
+        const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+            body: JSON.stringify({ model: modelId, max_tokens: 1024,
+                messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }] })
+        });
+        if (!resp.ok) {
+            const e = await resp.json().catch(() => ({}));
+            if (resp.status === 401) { sessionStorage.removeItem('key_groq'); updateKeyStatus(); throw new Error('API key Groq tidak valid.'); }
+            throw new Error(e?.error?.message || resp.statusText);
+        }
+        const data = await resp.json();
+        return data?.choices?.[0]?.message?.content || 'Response kosong';
+    }
+
+    if (provider === 'openai') {
+        const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+            body: JSON.stringify({ model: modelId, max_tokens: 1024,
+                messages: [{ role: 'system', content: system }, { role: 'user', content: userMsg }] })
+        });
+        if (!resp.ok) {
+            const e = await resp.json().catch(() => ({}));
+            if (resp.status === 401) { sessionStorage.removeItem('key_openai'); updateKeyStatus(); throw new Error('API key OpenAI tidak valid.'); }
+            throw new Error(e?.error?.message || resp.statusText);
+        }
+        const data = await resp.json();
+        return data?.choices?.[0]?.message?.content || 'Response kosong';
+    }
+
+    if (provider === 'anthropic') {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': key,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({ model: modelId, max_tokens: 1024, system,
+                messages: [{ role: 'user', content: userMsg }] })
+        });
+        if (!resp.ok) {
+            const e = await resp.json().catch(() => ({}));
+            if (resp.status === 401) { sessionStorage.removeItem('key_anthropic'); updateKeyStatus(); throw new Error('API key Anthropic tidak valid.'); }
+            throw new Error(e?.error?.message || resp.statusText);
+        }
+        const data = await resp.json();
+        return data?.content?.[0]?.text || 'Response kosong';
+    }
+
+    throw new Error('Provider tidak dikenal: ' + provider);
+}
+
+function clearTerminal() {
+    terminal.innerHTML = `<div class="line response" style="color:var(--muted);font-size:11px">Terminal dibersihkan.</div>`;
+}
+function useSug(text) {
+    if (!getApiKey()) { showKeyOverlay(); return; }
+    cmdInput.value = text; cmdInput.focus();
+}
+</script>
 </body>
 </html>
