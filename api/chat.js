@@ -1,7 +1,5 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
@@ -21,9 +19,15 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json(); // ← fix: resp → response
-    res.status(200).json(data);
+    // Tangkap error dari Gemini API
+    if (!response.ok) {
+      const errText = await response.text();
+      return res.status(response.status).json({ error: errText });
+    }
+
+    const data = await response.json();
+    return res.status(200).json(data); // forward langsung, tanpa wrapper
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 }
