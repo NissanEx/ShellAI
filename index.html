@@ -22,7 +22,18 @@
             --app-height: 100vh;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        /* Scrollbar Minimalis */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
         html, body {
             height: var(--app-height);
@@ -30,7 +41,7 @@
             background: var(--bg);
             color: var(--white);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             position: fixed;
             width: 100%;
         }
@@ -43,24 +54,21 @@
             display: flex;
             align-items: center;
             padding: 0 15px;
-            gap: 15px;
             z-index: 100;
         }
 
         .dots { display: flex; gap: 6px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.5; }
         .red { background: var(--red); }
         .yellow { background: var(--yellow); }
         .green { background: var(--green); }
-
-        .tab-title { font-size: 11px; color: var(--muted); flex-grow: 1; text-align: center; }
+        .tab-title { font-size: 11px; color: var(--muted); flex-grow: 1; text-align: center; letter-spacing: 0.5px; }
 
         /* --- MAIN WORKSPACE --- */
         .workspace {
             display: flex;
             height: calc(var(--app-height) - 38px);
             width: 100%;
-            position: relative;
         }
 
         .left-col {
@@ -69,65 +77,79 @@
             flex-direction: column;
             min-width: 0;
             background: var(--bg);
-            width: 100%; /* Memastikan mengambil lebar penuh */
         }
 
-        /* TERMINAL AREA */
         #terminal {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             scroll-behavior: smooth;
         }
 
-        .line { margin-bottom: 8px; line-height: 1.5; word-break: break-word; }
+        .line { margin-bottom: 14px; line-height: 1.6; word-break: break-word; }
         .ps1 { color: var(--prompt-host); font-weight: 600; }
         .ps1-path { color: var(--prompt-path); }
         .user-cmd { color: var(--white); margin-left: 8px; }
         
         .response {
-            padding: 10px 14px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 6px;
-            margin-top: 5px;
-            border-left: 2px solid var(--border);
+            padding: 0 10px;
+            margin-top: 4px;
+            color: var(--white);
+            opacity: 0.9;
         }
+
+        /* INLINE OUTPUT (TANPA JUDUL) */
+        .inline-output {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-top: 12px;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        
+        .output-content {
+            max-height: 400px;
+            overflow: auto;
+            padding: 15px;
+            font-size: 12px;
+        }
+
+        .output-content pre { color: var(--cyan); white-space: pre-wrap; }
+        .output-content svg { max-width: 100%; height: auto; display: block; }
 
         /* SUGGESTIONS */
         .suggestions {
             display: flex;
             gap: 8px;
-            padding: 10px 15px;
+            padding: 12px 20px;
             overflow-x: auto;
-            white-space: nowrap;
             background: var(--surface);
             border-top: 1px solid var(--border);
-            -ms-overflow-style: none; 
             scrollbar-width: none;
         }
         .suggestions::-webkit-scrollbar { display: none; }
-        
         .sug {
-            background: rgba(255,255,255,0.05);
+            background: transparent;
             border: 1px solid var(--border);
             color: var(--muted);
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 6px 14px;
+            border-radius: 4px;
             font-size: 11px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
-        .sug:hover { background: var(--border); color: var(--white); }
+        .sug:hover { border-color: var(--cyan); color: var(--white); }
 
         /* INPUT AREA */
         .input-line {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
+            padding: 15px 20px;
             background: var(--surface);
-            gap: 10px;
+            gap: 12px;
         }
-        .ps1-live { color: var(--cyan); font-weight: bold; }
+        .cursor-prompt { color: var(--cyan); font-weight: bold; }
         #cmdInput {
             flex: 1;
             background: transparent;
@@ -138,29 +160,15 @@
             outline: none;
         }
 
-        /* MOBILE OPTIMIZATIONS */
-        @media (max-width: 768px) {
-            #cmdInput { font-size: 16px; } 
-            .left-col { height: 100%; }
-        }
-
         .loading-dots:after {
             content: '.';
             animation: dots 1.5s steps(5, end) infinite;
         }
         @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 80%, 100% { content: ''; } }
-        
-        /* Code block in terminal styling */
-        .terminal-code {
-            background: #000;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 5px;
-            font-size: 12px;
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            display: block;
-            white-space: pre;
+
+        @media (max-width: 768px) {
+            #terminal { padding: 15px; }
+            #cmdInput { font-size: 16px; }
         }
     </style>
 </head>
@@ -180,22 +188,22 @@
         <div id="terminal">
             <div class="line">
                 <span class="ps1">visitor@ai-shell</span>:<span class="ps1-path">~</span>$ 
-                <span class="user-cmd">halo! terminal ini sekarang lebih luas.</span>
+                <span class="user-cmd">halo! generate kode python sederhana.</span>
             </div>
             <div class="line response">
-                Halo! Panel kanan telah dihapus. Semua jawaban AI akan langsung ditampilkan di sini, di dalam aliran terminal ini.
+                Siap. Panel penuh telah dihapus, hasil akan muncul langsung secara minimalis di sini.
             </div>
         </div>
 
-        <div class="suggestions" id="suggestions">
-            <button class="sug" onclick="useSug('apa itu AI?')">apa itu AI?</button>
-            <button class="sug" onclick="useSug('buatkan kode python hello world')">hello world python</button>
-            <button class="sug" onclick="useSug('image: matahari terbit')">image: matahari</button>
+        <div class="suggestions">
+            <button class="sug" onclick="useSug('code: fibonacci function')">code: fibonacci</button>
+            <button class="sug" onclick="useSug('image: abstract circle')">image: circle</button>
+            <button class="sug" onclick="clearTerminal()">clear screen</button>
         </div>
 
         <div class="input-line">
-            <span class="ps1-live">❯</span>
-            <input type="text" id="cmdInput" placeholder="Ketik perintah..." autocomplete="off" autofocus>
+            <span class="cursor-prompt">❯</span>
+            <input type="text" id="cmdInput" placeholder="..." autocomplete="off" autofocus>
         </div>
     </div>
 </div>
@@ -203,23 +211,20 @@
 <script>
     const cmdInput = document.getElementById('cmdInput');
     const terminal = document.getElementById('terminal');
-
     const apiKey = ""; 
 
-    // Perbaikan Tinggi Mobile
     function setHeight() {
-        const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-        document.documentElement.style.setProperty('--app-height', `${vh}px`);
+        const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', `${h}px`);
     }
     window.addEventListener('resize', setHeight);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', setHeight);
     setHeight();
 
-    // Logika Terminal
     cmdInput.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter' && cmdInput.value.trim()) {
             const val = cmdInput.value;
             cmdInput.value = '';
+            if (val.toLowerCase() === 'clear') { clearTerminal(); return; }
             addLog(val, 'user');
             await processCommand(val);
         }
@@ -241,43 +246,56 @@
     async function processCommand(cmd) {
         const loadingLine = document.createElement('div');
         loadingLine.className = 'line response';
-        loadingLine.innerHTML = `<span class="loading-dots">AI sedang berpikir</span>`;
+        loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted)">memproses</span>`;
         terminal.appendChild(loadingLine);
         terminal.scrollTop = terminal.scrollHeight;
 
         try {
-            const isCode = cmd.toLowerCase().includes('kode') || cmd.toLowerCase().includes('code');
+            const isCode = cmd.toLowerCase().startsWith('code:');
             const isImg = cmd.toLowerCase().startsWith('image:');
 
-            let systemPrompt = "Kamu adalah terminal AI asisten. Jawab dengan singkat.";
-            if (isCode) systemPrompt = "Jika memberikan kode, sertakan di dalam blok markdown.";
-            if (isImg) systemPrompt = "Berikan deskripsi singkat tentang gambar tersebut karena tampilan visual dinonaktifkan.";
+            let sys = "Jawab sangat singkat dan langsung ke poin.";
+            if (isCode) sys = "Berikan kode saja tanpa markdown wrapper atau penjelasan.";
+            if (isImg) sys = "Berikan HANYA kode SVG mentah tanpa penjelasan.";
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: cmd }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                    systemInstruction: { parts: [{ text: sys }] }
                 })
             });
 
-            const data = await response.json();
-            let result = data.candidates[0].content.parts[0].text;
-            
+            const data = await resp.json();
+            const result = data.candidates[0].content.parts[0].text;
             loadingLine.remove();
 
-            // Format sederhana untuk blok kode di dalam terminal
-            if (result.includes('```')) {
-                result = result.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-                    return `<code class="terminal-code">${code.trim()}</code>`;
-                });
+            if (isCode) {
+                const cleanCode = result.replace(/```\w*\n?|```/g, '').trim();
+                const container = document.createElement('div');
+                container.className = 'inline-output';
+                container.innerHTML = `<div class="output-content"><pre>${cleanCode}</pre></div>`;
+                addLog(`Output kode:`, "ai");
+                terminal.appendChild(container);
+            } else if (isImg) {
+                const svg = result.match(/<svg[\s\S]*<\/svg>/)?.[0] || "SVG tidak ditemukan.";
+                const container = document.createElement('div');
+                container.className = 'inline-output';
+                container.innerHTML = `<div class="output-content">${svg}</div>`;
+                addLog(`Output visual:`, "ai");
+                terminal.appendChild(container);
+            } else {
+                addLog(result, "ai");
             }
-
-            addLog(result, "ai");
+            terminal.scrollTop = terminal.scrollHeight;
         } catch (err) {
-            loadingLine.innerHTML = "Terjadi kesalahan koneksi.";
+            loadingLine.innerHTML = "Gagal terhubung.";
         }
+    }
+
+    function clearTerminal() {
+        terminal.innerHTML = `<div class="line response" style="color:var(--muted)">Terminal dibersihkan.</div>`;
     }
 
     function useSug(text) {
