@@ -16,68 +16,36 @@ let currentCode = '', currentLang = 'python', currentSvg = '';
 
 // ══════════════════════════════════════════════════════
 // MOBILE HEIGHT FIX
-// Masalah: Android Chrome "Large Viewport" → 100vh
-// termasuk address bar → konten overflow → layout membesar.
-//
-// Solusi:
-// 1. --app-height = window.innerHeight (visual area aktual)
-// 2. body.style.height = window.innerHeight + 'px'
-// 3. position: fixed di body (CSS) → cegah elastic scroll iOS
-// 4. visualViewport API untuk akurasi lebih tinggi
+// Android Chrome: 100vh termasuk address bar → overflow.
+// Solusi: --app-height = window.innerHeight (area aktual).
+// body { position: fixed } di CSS mencegah elastic scroll iOS.
 // ══════════════════════════════════════════════════════
 function setAppHeight() {
-  const h = window.innerHeight;
+  const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   document.documentElement.style.setProperty('--app-height', h + 'px');
   document.body.style.height = h + 'px';
 }
 
 setAppHeight();
 
-// Throttle resize agar tidak terlalu sering fire
 let resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(setAppHeight, 50);
 });
 
-// visualViewport API: lebih akurat di iOS Safari & Chrome Android
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', () => {
-    const vvh = window.visualViewport.height;
-    document.documentElement.style.setProperty('--app-height', vvh + 'px');
-    document.body.style.height = vvh + 'px';
-    // scroll terminal ke bawah agar input terlihat saat keyboard naik
-    setTimeout(() => terminal.scrollTop = terminal.scrollHeight, 80);
+    setAppHeight();
+    setTimeout(() => terminal.scrollTop = terminal.scrollHeight, 100);
   });
   window.visualViewport.addEventListener('scroll', () => {
-    // cegah body ikut scroll saat keyboard muncul di iOS
     window.scrollTo(0, 0);
   });
 }
 
-// ══════════════════════════════════════════════════════
-// MOBILE PANEL PADDING COMPENSATION
-// Saat panel output terbuka (bottom sheet), terminal
-// perlu padding-bottom agar konten terakhir tidak
-// tertutup oleh panel. Ini lebih reliable daripada CSS-only.
-// ══════════════════════════════════════════════════════
-function isMobile() {
-  return window.innerWidth <= 768;
-}
-
-function updateTerminalPadding() {
-  if (!isMobile()) {
-    terminal.style.paddingBottom = '';
-    return;
-  }
-  if (outputPanel.classList.contains('open')) {
-    // Panel terbuka: beri ruang sebesar tinggi panel
-    const panelH = outputPanel.offsetHeight;
-    terminal.style.paddingBottom = (panelH + 12) + 'px';
-  } else {
-    terminal.style.paddingBottom = '';
-  }
-}
+// ── UTILS ──
+function isMobile() { return window.innerWidth <= 768; }
 
 // ── INPUT ──
 cmdInput.addEventListener('keydown', async (e) => {
@@ -102,7 +70,6 @@ cmdInput.addEventListener('keydown', async (e) => {
   }
 });
 
-// Mobile: saat fokus, scroll terminal ke bawah setelah keyboard naik
 cmdInput.addEventListener('focus', () => {
   setTimeout(() => terminal.scrollTop = terminal.scrollHeight, 350);
 });
@@ -123,16 +90,14 @@ function switchTab(tab) {
 }
 
 function openPanel(tab) {
-  // Desktop: reset ke lebar default
   if (!isMobile()) {
     outputPanel.style.width = '';
     outputPanel.style.height = '';
   }
   outputPanel.classList.add('open');
   switchTab(tab);
-  // Update padding terminal setelah transition selesai
-  setTimeout(updateTerminalPadding, 350);
-  setTimeout(() => terminal.scrollTop = terminal.scrollHeight, 400);
+  // Scroll terminal agar tidak tertutup panel
+  setTimeout(() => terminal.scrollTop = terminal.scrollHeight, 380);
 }
 
 function closePanel() {
@@ -141,8 +106,6 @@ function closePanel() {
     outputPanel.style.width = '';
     outputPanel.style.height = '';
   }
-  // Kembalikan padding terminal
-  setTimeout(updateTerminalPadding, 350);
 }
 
 // ── RESIZE (desktop only) ──
@@ -151,9 +114,9 @@ const workspace    = document.getElementById('workspace');
 let isResizing = false;
 resizeHandle.addEventListener('mousedown', () => {
   if (isMobile()) return;
-  isResizing=true;
-  document.body.style.cursor='col-resize';
-  document.body.style.userSelect='none';
+  isResizing = true;
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
 });
 document.addEventListener('mousemove', (e) => {
   if (!isResizing || isMobile()) return;
@@ -164,7 +127,7 @@ document.addEventListener('mousemove', (e) => {
   outputPanel.classList.add('open');
 });
 document.addEventListener('mouseup', () => {
-  if(isResizing){ isResizing=false; document.body.style.cursor=''; document.body.style.userSelect=''; }
+  if (isResizing) { isResizing=false; document.body.style.cursor=''; document.body.style.userSelect=''; }
 });
 
 // ── HELPERS ──
