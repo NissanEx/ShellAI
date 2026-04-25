@@ -22,14 +22,8 @@
             --app-height: 100vh;
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        /* Scrollbar Minimalis */
         ::-webkit-scrollbar { width: 3px; height: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -45,7 +39,6 @@
             width: 100%;
         }
 
-        /* --- TITLE BAR --- */
         .titlebar {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -54,16 +47,16 @@
             align-items: center;
             padding: 0 12px;
             z-index: 100;
+            overflow: hidden;
+            white-space: nowrap;
         }
-
-        .dots { display: flex; gap: 5px; }
+        .dots { display: flex; gap: 5px; flex-shrink: 0; }
         .dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.4; }
-        .red { background: var(--red); }
+        .red    { background: var(--red); }
         .yellow { background: var(--yellow); }
-        .green { background: var(--green); }
+        .green  { background: var(--green); }
         .tab-title { font-size: 10px; color: var(--muted); flex-grow: 1; text-align: center; letter-spacing: 0.3px; }
 
-        /* --- MAIN WORKSPACE --- */
         .workspace {
             display: flex;
             height: calc(var(--app-height) - 32px);
@@ -86,10 +79,10 @@
         }
 
         .line { margin-bottom: 8px; line-height: 1.4; word-break: break-word; }
-        .ps1 { color: var(--prompt-host); font-weight: 600; }
+        .ps1      { color: var(--prompt-host); font-weight: 600; }
         .ps1-path { color: var(--prompt-path); }
         .user-cmd { color: var(--white); margin-left: 6px; }
-        
+
         .response {
             padding: 0 6px;
             margin-top: 2px;
@@ -98,27 +91,23 @@
             font-size: 12.5px;
         }
 
-        /* INLINE OUTPUT COMPACT */
         .inline-output {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
             border: 1px solid var(--border);
             border-radius: 4px;
             margin-top: 8px;
             overflow: hidden;
             max-width: 100%;
         }
-        
         .output-content {
             max-height: 350px;
             overflow: auto;
             padding: 10px;
             font-size: 11.5px;
         }
-
         .output-content pre { color: var(--cyan); white-space: pre-wrap; line-height: 1.3; }
         .output-content svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
-        /* SUGGESTIONS COMPACT */
         .suggestions {
             display: flex;
             gap: 6px;
@@ -127,6 +116,7 @@
             background: var(--surface);
             border-top: 1px solid var(--border);
             scrollbar-width: none;
+            flex-shrink: 0;
         }
         .suggestions::-webkit-scrollbar { display: none; }
         .sug {
@@ -138,17 +128,21 @@
             font-size: 10px;
             cursor: pointer;
             white-space: nowrap;
+            font-family: inherit;
+            transition: border-color 0.15s, color 0.15s;
         }
+        .sug:hover { border-color: var(--cyan); color: var(--cyan); }
 
-        /* INPUT AREA COMPACT */
         .input-line {
             display: flex;
             align-items: center;
             padding: 10px 12px;
             background: var(--surface);
+            border-top: 1px solid var(--border);
             gap: 8px;
+            flex-shrink: 0;
         }
-        .cursor-prompt { color: var(--cyan); font-weight: bold; font-size: 12px; }
+        .cursor-prompt { color: var(--cyan); font-weight: bold; font-size: 12px; flex-shrink: 0; }
         #cmdInput {
             flex: 1;
             background: transparent;
@@ -157,20 +151,31 @@
             font-family: inherit;
             font-size: 14px;
             outline: none;
+            min-width: 0;
         }
+        #cmdInput::placeholder { color: var(--muted); }
 
-        .loading-dots:after {
+        .loading-dots::after {
             content: '.';
             animation: dots 1.5s steps(5, end) infinite;
         }
-        @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 80%, 100% { content: ''; } }
+        @keyframes dots {
+            0%,20%  { content: '.'; }
+            40%     { content: '..'; }
+            60%     { content: '...'; }
+            80%,100%{ content: ''; }
+        }
 
         @media (max-width: 768px) {
-            #terminal { padding: 10px; }
-            .line { margin-bottom: 6px; }
+            body { font-size: 11px; }
+            .tab-title { font-size: 9px; }
+            #terminal { padding: 8px 10px; }
+            .line { margin-bottom: 6px; font-size: 11px; }
+            .response { font-size: 11px; }
             #cmdInput { font-size: 16px; }
             .input-line { padding: 8px 10px; }
-            .suggestions { padding: 6px 10px; }
+            .suggestions { padding: 5px 10px; gap: 5px; }
+            .sug { font-size: 9px; padding: 3px 8px; }
         }
     </style>
 </head>
@@ -189,23 +194,26 @@
     <div class="left-col">
         <div id="terminal">
             <div class="line">
-                <span class="ps1">visitor@ai-shell</span>:<span class="ps1-path">~</span>$ 
-                <span class="user-cmd">siap pakai di Vercel.</span>
+                <span class="ps1">ai-shell</span>:<span class="ps1-path">~</span>$
+                <span class="user-cmd">sistem siap.</span>
             </div>
-            <div class="line response">
-                Frontend telah dihubungkan ke backend secure (/api/chat).
+            <div class="line response" style="color:var(--muted); font-size:11px">
+                Terhubung ke Claude via /api/chat &mdash;
+                ketik pertanyaan, <span style="color:var(--purple)">code:</span> untuk kode,
+                <span style="color:var(--yellow)">image:</span> untuk SVG.
             </div>
         </div>
 
         <div class="suggestions">
-            <button class="sug" onclick="useSug('code: python calculator')">code: calc</button>
+            <button class="sug" onclick="useSug('apa itu machine learning?')">tanya AI</button>
+            <button class="sug" onclick="useSug('code: kalkulator python')">code: calc</button>
             <button class="sug" onclick="useSug('image: abstract tech logo')">image: logo</button>
             <button class="sug" onclick="clearTerminal()">clear</button>
         </div>
 
         <div class="input-line">
             <span class="cursor-prompt">❯</span>
-            <input type="text" id="cmdInput" placeholder="..." autocomplete="off" autofocus>
+            <input type="text" id="cmdInput" placeholder="ketik pesan..." autocomplete="off" spellcheck="false" autofocus>
         </div>
     </div>
 </div>
@@ -213,95 +221,125 @@
 <script>
     const cmdInput = document.getElementById('cmdInput');
     const terminal = document.getElementById('terminal');
-    
+
+    // Mobile height fix
     function setHeight() {
         const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
         document.documentElement.style.setProperty('--app-height', `${h}px`);
     }
     window.addEventListener('resize', setHeight);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', setHeight);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', setHeight);
+        window.visualViewport.addEventListener('scroll', () => window.scrollTo(0, 0));
+    }
     setHeight();
 
+    // Enter handler
     cmdInput.addEventListener('keydown', async (e) => {
-        if (e.key === 'Enter' && cmdInput.value.trim()) {
-            const val = cmdInput.value;
-            cmdInput.value = '';
-            if (val.toLowerCase() === 'clear') { clearTerminal(); return; }
-            addLog(val, 'user');
-            await processCommand(val);
-        }
+        if (e.key !== 'Enter') return;
+        const val = cmdInput.value.trim();
+        if (!val) return;
+        cmdInput.value = '';
+        if (val.toLowerCase() === 'clear') { clearTerminal(); return; }
+        addLog(val, 'user');
+        await processCommand(val);
     });
+
+    document.body.addEventListener('click', (e) => {
+        if (!e.target.closest('.sug')) cmdInput.focus();
+    });
+
+    function escHtml(t) {
+        return String(t)
+            .replace(/&/g,'&amp;')
+            .replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;');
+    }
 
     function addLog(text, role) {
         const line = document.createElement('div');
-        line.className = 'line';
         if (role === 'user') {
-            line.innerHTML = `<span class="ps1">visitor</span>:<span class="ps1-path">~</span>$ <span class="user-cmd">${text}</span>`;
+            line.className = 'line';
+            line.innerHTML = `<span class="ps1">visitor</span>:<span class="ps1-path">~</span>$ <span class="user-cmd">${escHtml(text)}</span>`;
         } else {
             line.className = 'line response';
             line.innerHTML = text;
         }
         terminal.appendChild(line);
         terminal.scrollTop = terminal.scrollHeight;
+        return line;
     }
 
     async function processCommand(cmd) {
         const loadingLine = document.createElement('div');
         loadingLine.className = 'line response';
-        loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted); font-size:11px">memproses</span>`;
+        loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted);font-size:11px">memproses</span>`;
         terminal.appendChild(loadingLine);
         terminal.scrollTop = terminal.scrollHeight;
 
         try {
             const isCode = cmd.toLowerCase().startsWith('code:');
-            const isImg = cmd.toLowerCase().startsWith('image:');
+            const isImg  = cmd.toLowerCase().startsWith('image:');
 
-            let sys = "Balas sangat singkat dalam Bahasa Indonesia.";
-            if (isCode) sys = "Hanya berikan kode saja tanpa markdown wrapper atau penjelasan.";
-            if (isImg) sys = "Hanya berikan kode SVG mentah tanpa penjelasan apa pun.";
+            let sys = 'Kamu adalah asisten AI. Jawab singkat dan jelas dalam Bahasa Indonesia. Teks biasa, tanpa markdown.';
+            if (isCode) sys = 'Kamu adalah code generator. Berikan HANYA kode saja, tanpa penjelasan dan tanpa markdown code fence (```).';
+            if (isImg)  sys = 'Kamu adalah SVG generator. Berikan HANYA kode SVG mentah (600x400) yang indah, tanpa penjelasan apa pun.';
 
-            // MEMANGGIL BACKEND VERCEL (api/chat.js)
             const resp = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prompt: cmd,
-                    systemInstruction: sys
-                })
+                body: JSON.stringify({ prompt: cmd, systemInstruction: sys })
             });
 
             const data = await resp.json();
-            
-            if (data.error) throw new Error(data.error);
 
-            const result = data.candidates[0].content.parts[0].text;
+            // Error dari backend
+            if (data.error) {
+                const errMsg = typeof data.error === 'object'
+                    ? JSON.stringify(data.error, null, 2)
+                    : data.error;
+                throw new Error(errMsg);
+            }
+
+            // ── Parse Claude response ──
+            // Format Claude: { content: [ { type: "text", text: "..." } ] }
+            const result = data?.content?.[0]?.text;
+            if (!result) throw new Error('Response kosong dari AI');
+
             loadingLine.remove();
 
             if (isCode) {
-                const cleanCode = result.replace(/```\w*\n?|```/g, '').trim();
+                const cleanCode = result.replace(/```[\w]*\n?/g, '').replace(/```/g, '').trim();
+                addLog('Hasil kode:', 'ai');
                 const container = document.createElement('div');
                 container.className = 'inline-output';
-                container.innerHTML = `<div class="output-content"><pre>${cleanCode}</pre></div>`;
-                addLog(`Hasil Kode:`, "ai");
+                container.innerHTML = `<div class="output-content"><pre>${escHtml(cleanCode)}</pre></div>`;
                 terminal.appendChild(container);
+
             } else if (isImg) {
-                const svg = result.match(/<svg[\s\S]*<\/svg>/)?.[0] || "SVG error.";
+                const svgMatch = result.match(/<svg[\s\S]*?<\/svg>/i);
+                addLog('Hasil visual:', 'ai');
                 const container = document.createElement('div');
                 container.className = 'inline-output';
-                container.innerHTML = `<div class="output-content">${svg}</div>`;
-                addLog(`Hasil Visual:`, "ai");
+                container.innerHTML = `<div class="output-content">${
+                    svgMatch ? svgMatch[0] : '<span style="color:var(--red)">Gagal parse SVG.</span>'
+                }</div>`;
                 terminal.appendChild(container);
+
             } else {
-                addLog(result, "ai");
+                addLog(escHtml(result), 'ai');
             }
+
             terminal.scrollTop = terminal.scrollHeight;
+
         } catch (err) {
-            loadingLine.innerHTML = `<span style="color:var(--red)">Ralat: ${err.message}</span>`;
+            loadingLine.innerHTML = `<span style="color:var(--red)">Ralat: ${escHtml(err.message)}</span>`;
+            terminal.scrollTop = terminal.scrollHeight;
         }
     }
 
     function clearTerminal() {
-        terminal.innerHTML = `<div class="line response" style="color:var(--muted); font-size:11px">Terminal dibersihkan.</div>`;
+        terminal.innerHTML = `<div class="line response" style="color:var(--muted);font-size:11px">Terminal dibersihkan.</div>`;
     }
 
     function useSug(text) {
