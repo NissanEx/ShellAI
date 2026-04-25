@@ -30,10 +30,9 @@
         }
 
         /* Scrollbar Minimalis */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
         html, body {
             height: var(--app-height);
@@ -50,24 +49,24 @@
         .titlebar {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            height: 38px;
+            height: 32px;
             display: flex;
             align-items: center;
-            padding: 0 15px;
+            padding: 0 12px;
             z-index: 100;
         }
 
-        .dots { display: flex; gap: 6px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.5; }
+        .dots { display: flex; gap: 5px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.4; }
         .red { background: var(--red); }
         .yellow { background: var(--yellow); }
         .green { background: var(--green); }
-        .tab-title { font-size: 11px; color: var(--muted); flex-grow: 1; text-align: center; letter-spacing: 0.5px; }
+        .tab-title { font-size: 10px; color: var(--muted); flex-grow: 1; text-align: center; letter-spacing: 0.3px; }
 
         /* --- MAIN WORKSPACE --- */
         .workspace {
             display: flex;
-            height: calc(var(--app-height) - 38px);
+            height: calc(var(--app-height) - 32px);
             width: 100%;
         }
 
@@ -82,47 +81,48 @@
         #terminal {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 12px;
             scroll-behavior: smooth;
         }
 
-        .line { margin-bottom: 14px; line-height: 1.6; word-break: break-word; }
+        .line { margin-bottom: 8px; line-height: 1.4; word-break: break-word; }
         .ps1 { color: var(--prompt-host); font-weight: 600; }
         .ps1-path { color: var(--prompt-path); }
-        .user-cmd { color: var(--white); margin-left: 8px; }
+        .user-cmd { color: var(--white); margin-left: 6px; }
         
         .response {
-            padding: 0 10px;
-            margin-top: 4px;
+            padding: 0 6px;
+            margin-top: 2px;
             color: var(--white);
-            opacity: 0.9;
+            opacity: 0.85;
+            font-size: 12.5px;
         }
 
-        /* INLINE OUTPUT (TANPA JUDUL) */
+        /* INLINE OUTPUT COMPACT */
         .inline-output {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-top: 12px;
+            border-radius: 4px;
+            margin-top: 8px;
             overflow: hidden;
             max-width: 100%;
         }
         
         .output-content {
-            max-height: 400px;
+            max-height: 350px;
             overflow: auto;
-            padding: 15px;
-            font-size: 12px;
+            padding: 10px;
+            font-size: 11.5px;
         }
 
-        .output-content pre { color: var(--cyan); white-space: pre-wrap; }
-        .output-content svg { max-width: 100%; height: auto; display: block; }
+        .output-content pre { color: var(--cyan); white-space: pre-wrap; line-height: 1.3; }
+        .output-content svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
-        /* SUGGESTIONS */
+        /* SUGGESTIONS COMPACT */
         .suggestions {
             display: flex;
-            gap: 8px;
-            padding: 12px 20px;
+            gap: 6px;
+            padding: 8px 12px;
             overflow-x: auto;
             background: var(--surface);
             border-top: 1px solid var(--border);
@@ -133,23 +133,22 @@
             background: transparent;
             border: 1px solid var(--border);
             color: var(--muted);
-            padding: 6px 14px;
-            border-radius: 4px;
-            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .sug:hover { border-color: var(--cyan); color: var(--white); }
 
-        /* INPUT AREA */
+        /* INPUT AREA COMPACT */
         .input-line {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
+            padding: 10px 12px;
             background: var(--surface);
-            gap: 12px;
+            gap: 8px;
         }
-        .cursor-prompt { color: var(--cyan); font-weight: bold; }
+        .cursor-prompt { color: var(--cyan); font-weight: bold; font-size: 12px; }
         #cmdInput {
             flex: 1;
             background: transparent;
@@ -167,8 +166,11 @@
         @keyframes dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60% { content: '...'; } 80%, 100% { content: ''; } }
 
         @media (max-width: 768px) {
-            #terminal { padding: 15px; }
+            #terminal { padding: 10px; }
+            .line { margin-bottom: 6px; }
             #cmdInput { font-size: 16px; }
+            .input-line { padding: 8px 10px; }
+            .suggestions { padding: 6px 10px; }
         }
     </style>
 </head>
@@ -188,17 +190,17 @@
         <div id="terminal">
             <div class="line">
                 <span class="ps1">visitor@ai-shell</span>:<span class="ps1-path">~</span>$ 
-                <span class="user-cmd">halo! generate kode python sederhana.</span>
+                <span class="user-cmd">siap pakai di Vercel.</span>
             </div>
             <div class="line response">
-                Siap. Panel penuh telah dihapus, hasil akan muncul langsung secara minimalis di sini.
+                Frontend telah dihubungkan ke backend secure (/api/chat).
             </div>
         </div>
 
         <div class="suggestions">
-            <button class="sug" onclick="useSug('code: fibonacci function')">code: fibonacci</button>
-            <button class="sug" onclick="useSug('image: abstract circle')">image: circle</button>
-            <button class="sug" onclick="clearTerminal()">clear screen</button>
+            <button class="sug" onclick="useSug('code: python calculator')">code: calc</button>
+            <button class="sug" onclick="useSug('image: abstract tech logo')">image: logo</button>
+            <button class="sug" onclick="clearTerminal()">clear</button>
         </div>
 
         <div class="input-line">
@@ -211,13 +213,13 @@
 <script>
     const cmdInput = document.getElementById('cmdInput');
     const terminal = document.getElementById('terminal');
-    const apiKey = ""; 
-
+    
     function setHeight() {
         const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
         document.documentElement.style.setProperty('--app-height', `${h}px`);
     }
     window.addEventListener('resize', setHeight);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', setHeight);
     setHeight();
 
     cmdInput.addEventListener('keydown', async (e) => {
@@ -246,7 +248,7 @@
     async function processCommand(cmd) {
         const loadingLine = document.createElement('div');
         loadingLine.className = 'line response';
-        loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted)">memproses</span>`;
+        loadingLine.innerHTML = `<span class="loading-dots" style="color:var(--muted); font-size:11px">memproses</span>`;
         terminal.appendChild(loadingLine);
         terminal.scrollTop = terminal.scrollHeight;
 
@@ -254,20 +256,24 @@
             const isCode = cmd.toLowerCase().startsWith('code:');
             const isImg = cmd.toLowerCase().startsWith('image:');
 
-            let sys = "Jawab sangat singkat dan langsung ke poin.";
-            if (isCode) sys = "Berikan kode saja tanpa markdown wrapper atau penjelasan.";
-            if (isImg) sys = "Berikan HANYA kode SVG mentah tanpa penjelasan.";
+            let sys = "Balas sangat singkat dalam Bahasa Indonesia.";
+            if (isCode) sys = "Hanya berikan kode saja tanpa markdown wrapper atau penjelasan.";
+            if (isImg) sys = "Hanya berikan kode SVG mentah tanpa penjelasan apa pun.";
 
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            // MEMANGGIL BACKEND VERCEL (api/chat.js)
+            const resp = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: cmd }] }],
-                    systemInstruction: { parts: [{ text: sys }] }
+                    prompt: cmd,
+                    systemInstruction: sys
                 })
             });
 
             const data = await resp.json();
+            
+            if (data.error) throw new Error(data.error);
+
             const result = data.candidates[0].content.parts[0].text;
             loadingLine.remove();
 
@@ -276,26 +282,26 @@
                 const container = document.createElement('div');
                 container.className = 'inline-output';
                 container.innerHTML = `<div class="output-content"><pre>${cleanCode}</pre></div>`;
-                addLog(`Output kode:`, "ai");
+                addLog(`Hasil Kode:`, "ai");
                 terminal.appendChild(container);
             } else if (isImg) {
-                const svg = result.match(/<svg[\s\S]*<\/svg>/)?.[0] || "SVG tidak ditemukan.";
+                const svg = result.match(/<svg[\s\S]*<\/svg>/)?.[0] || "SVG error.";
                 const container = document.createElement('div');
                 container.className = 'inline-output';
                 container.innerHTML = `<div class="output-content">${svg}</div>`;
-                addLog(`Output visual:`, "ai");
+                addLog(`Hasil Visual:`, "ai");
                 terminal.appendChild(container);
             } else {
                 addLog(result, "ai");
             }
             terminal.scrollTop = terminal.scrollHeight;
         } catch (err) {
-            loadingLine.innerHTML = "Gagal terhubung.";
+            loadingLine.innerHTML = `<span style="color:var(--red)">Ralat: ${err.message}</span>`;
         }
     }
 
     function clearTerminal() {
-        terminal.innerHTML = `<div class="line response" style="color:var(--muted)">Terminal dibersihkan.</div>`;
+        terminal.innerHTML = `<div class="line response" style="color:var(--muted); font-size:11px">Terminal dibersihkan.</div>`;
     }
 
     function useSug(text) {
