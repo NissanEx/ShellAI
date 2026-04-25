@@ -49,8 +49,10 @@ body {
   gap: 10px;
   flex-shrink: 0;
   user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
 }
-.dots { display: flex; gap: 6px; }
+.dots { display: flex; gap: 6px; flex-shrink: 0; }
 .dot { width: 12px; height: 12px; border-radius: 50%; }
 .dot.red    { background: #ff5f57; }
 .dot.yellow { background: #ffbd2e; }
@@ -275,106 +277,105 @@ pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-rad
    MOBILE ≤ 768px
    ════════════════════════════ */
 @media (max-width: 768px) {
-  body { font-size: 11px; }
+  body { font-size: 11px; cursor: default; }
 
-  /* Titlebar compact — sembunyikan judul & status */
+  /* TITLEBAR: 1 baris flat, dots saja */
   .titlebar {
-    padding: 5px 10px;
-    padding-top: max(5px, env(safe-area-inset-top));
+    padding: 7px 12px;
+    padding-top: max(7px, env(safe-area-inset-top));
     min-height: 0;
+    max-height: 36px;
+    overflow: hidden;
   }
-  .dot { width: 8px; height: 8px; }
-  .tab-title { display: none; }
-  .status-bar { display: none; }
+  .dot { width: 9px; height: 9px; }
+  .tab-title  { display: none !important; }
+  .status-bar { display: none !important; }
 
-  /* Workspace: column, relative untuk absolute panel */
-  .workspace { flex-direction: column; position: relative; }
-  .resize-handle { display: none; }
+  /* WORKSPACE */
+  .workspace { flex-direction: column; position: relative; overflow: hidden; }
+  .resize-handle { display: none !important; }
+  .left-col { width: 100%; flex: 1; min-height: 0; }
 
-  /* Left col full lebar */
-  .left-col { width: 100%; }
-
-  /* Suggestions: horizontal scroll, lebih kecil */
+  /* SUGGESTIONS */
   .suggestions {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 3px 10px;
+    padding: 4px 10px;
     scrollbar-width: none;
     gap: 4px;
+    flex-shrink: 0;
   }
   .suggestions::-webkit-scrollbar { display: none; }
   .sug { flex-shrink: 0; font-size: 9.5px; padding: 2px 7px; }
 
-  /* Terminal — font lebih kecil, padding compact */
+  /* TERMINAL */
   .terminal { padding: 8px 10px 4px; }
-  .boot { font-size: 10px; line-height: 1.55; margin-bottom: 10px; }
-  .entry { margin-bottom: 10px; }
-
-  /* Prompt line — lebih kecil */
+  .boot { font-size: 10px; line-height: 1.5; margin-bottom: 8px; }
+  .entry { margin-bottom: 8px; }
   .prompt-line { font-size: 10.5px; line-height: 1.5; }
-  .ps1-sign { margin-right: 5px; }
+  .ps1-sign { margin-right: 4px; }
+  .response { padding: 6px 8px; font-size: 11px; line-height: 1.6; margin-top: 4px; }
+  .response .ai-tag { font-size: 9px; margin-bottom: 3px; }
 
-  /* Response block */
-  .response {
-    padding: 6px 9px;
-    font-size: 11px;
-    line-height: 1.6;
-    margin-top: 4px;
-  }
-  .response .ai-tag { font-size: 9.5px; margin-bottom: 4px; }
-
-  /* Input bar — compact, prompt kecil */
+  /* INPUT BAR */
   .input-line {
     padding: 6px 10px;
-    padding-bottom: max(6px, env(safe-area-inset-bottom));
-    gap: 3px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    gap: 4px;
   }
-  .ps1-live { font-size: 10px; margin-right: 5px; }
-  /* Input tetap 16px supaya iOS tidak auto-zoom */
+  .ps1-live { font-size: 10px; margin-right: 4px; }
   #cmdInput { font-size: 16px; }
 
-  /* ─────────────────────────────────────────────────────
-     OUTPUT PANEL MOBILE — bottom sheet
-     Saat TERTUTUP: height 0, hidden, no pointer events
-     Saat TERBUKA (.open): height 58%, visible
-     ───────────────────────────────────────────────────── */
+  /* OUTPUT PANEL — bottom sheet overlay
+     TERTUTUP: completely invisible & untouchable
+     TERBUKA (.open): slide up 58% */
   .output-panel {
     position: absolute !important;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
     height: 0 !important;
-    visibility: hidden;
-    pointer-events: none;
-    border-left: none !important;
-    border-top: none !important;
-    overflow: hidden;
+    max-height: 0 !important;
+    flex: none !important;
+    visibility: hidden !important;
+    opacity: 0;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    border: none !important;
+    z-index: 50;
     transition:
-      height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      height 0.3s cubic-bezier(0.4,0,0.2,1),
+      max-height 0.3s cubic-bezier(0.4,0,0.2,1),
+      opacity 0.25s ease,
       visibility 0s linear 0.3s;
-    z-index: 20;
   }
 
   .output-panel.open {
     height: 58% !important;
-    visibility: visible;
-    pointer-events: auto;
+    max-height: 58% !important;
+    visibility: visible !important;
+    opacity: 1;
+    pointer-events: auto !important;
+    overflow: hidden !important;
     border-top: 2px solid var(--cyan) !important;
     transition:
-      height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      height 0.3s cubic-bezier(0.4,0,0.2,1),
+      max-height 0.3s cubic-bezier(0.4,0,0.2,1),
+      opacity 0.25s ease,
       visibility 0s linear 0s;
   }
 
-  /* Panel tabs & code kompak */
   .panel-topbar { padding: 5px 10px; }
   .ptab { padding: 3px 7px; font-size: 9.5px; }
-  .panel-close { font-size: 12px; padding: 3px 6px; }
+  .panel-close { font-size: 12px; padding: 2px 6px; }
   .code-header, .preview-header, .image-header { padding: 5px 10px; font-size: 10px; }
-  pre#codeDisplay { font-size: 10.5px; padding: 8px; }
-
-  .toast { bottom: 10px; right: 10px; font-size: 10.5px; padding: 6px 12px; }
+  pre#codeDisplay { font-size: 10.5px; padding: 8px; line-height: 1.55; }
+  .toast { bottom: 10px; right: 10px; font-size: 10.5px; padding: 5px 12px; }
 }
 
 @supports (-webkit-touch-callout: none) {
