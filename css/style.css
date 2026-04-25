@@ -16,12 +16,14 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── MOBILE: pakai dvh agar keyboard tidak potong layout ── */
 body {
   background: var(--bg);
   color: var(--white);
   font-family: 'JetBrains Mono', monospace;
   font-size: 13.5px;
   height: 100vh;
+  height: 100dvh; /* dynamic viewport: menyesuaikan keyboard */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -51,18 +53,31 @@ body {
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 
 /* ── WORKSPACE ── */
-.workspace { flex: 1; display: flex; overflow: hidden; }
+.workspace {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0; /* penting agar flex child bisa shrink */
+}
 
 /* ── LEFT: TERMINAL ── */
-.left-col { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.left-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
 
 .terminal {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll iOS */
   padding: 18px 20px 8px;
   display: flex;
   flex-direction: column;
   scroll-behavior: smooth;
+  min-height: 0;
 }
 .terminal::-webkit-scrollbar { width: 4px; }
 .terminal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -99,11 +114,20 @@ body {
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
 
 /* ── SUGGESTIONS ── */
-.suggestions { padding: 6px 20px 0; display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
+.suggestions {
+  padding: 6px 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
 .sug {
   background: transparent; border: 1px solid var(--border); color: var(--muted);
   font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 10px;
   border-radius: 4px; cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  /* touch target lebih besar di HP */
+  min-height: 28px;
+  display: flex; align-items: center;
 }
 .sug:hover           { border-color: var(--cyan);   color: var(--cyan); }
 .sug.code-sug:hover  { border-color: var(--purple); color: var(--purple); }
@@ -111,14 +135,21 @@ body {
 
 /* ── INPUT LINE ── */
 .input-line {
-  display: flex; align-items: center; flex-shrink: 0;
-  padding: 10px 20px 16px; border-top: 1px solid var(--border); background: var(--bg);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 10px 20px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom)); /* iPhone notch */
+  border-top: 1px solid var(--border);
+  background: var(--bg);
 }
 .ps1-live { white-space: nowrap; flex-shrink: 0; margin-right: 8px; }
 #cmdInput {
   flex: 1; background: transparent; border: none; outline: none;
   color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 13.5px;
   caret-color: var(--green);
+  /* cegah iOS auto-zoom (font minimal 16px) */
+  font-size: max(13.5px, 16px);
 }
 #cmdInput::placeholder { color: var(--muted); }
 
@@ -158,7 +189,7 @@ body {
 }
 .panel-close:hover { color: var(--red); background: rgba(248,81,73,0.1); }
 
-.panel-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.panel-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 
 /* CODE VIEW */
 .code-view, .preview-view, .image-view {
@@ -177,6 +208,7 @@ body {
   background: var(--surface); border: 1px solid var(--border); color: var(--muted);
   font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 10px;
   border-radius: 4px; cursor: pointer; transition: color 0.15s, border-color 0.15s;
+  min-height: 28px;
 }
 .code-btn:hover      { color: var(--green);  border-color: var(--green); }
 .code-btn.run:hover  { color: var(--yellow); border-color: var(--yellow); }
@@ -184,6 +216,8 @@ body {
 pre#codeDisplay {
   padding: 16px; font-size: 12.5px; line-height: 1.7;
   overflow: auto; white-space: pre; flex: 1; color: var(--white); tab-size: 2;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
 }
 pre#codeDisplay::-webkit-scrollbar { width: 4px; height: 4px; }
 pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -197,12 +231,14 @@ pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-rad
 
 /* PREVIEW */
 .preview-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); }
-#previewFrame { flex: 1; border: none; background: #fff; }
+#previewFrame { flex: 1; border: none; background: #fff; min-height: 0; }
 
 /* IMAGE */
 .image-body {
   flex: 1; display: flex; align-items: center; justify-content: center;
   padding: 20px; overflow: auto; position: relative; background: #080c10;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
 }
 .image-body img {
   max-width: 100%; max-height: 100%; border-radius: 8px;
@@ -235,3 +271,90 @@ pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-rad
   transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 999;
 }
 .toast.show { opacity: 1; transform: translateY(0); }
+
+/* ════════════════════════════════════════
+   MOBILE RESPONSIVE — ≤ 768px
+   ════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  body {
+    font-size: 12px;
+    /* iOS Safari: cegah bounce scroll di body */
+    position: fixed;
+    width: 100%;
+    top: 0; left: 0; right: 0; bottom: 0;
+  }
+
+  /* Workspace jadi column di mobile: panel di bawah terminal */
+  .workspace {
+    flex-direction: column;
+  }
+
+  /* Sembunyikan resize handle di mobile */
+  .resize-handle { display: none; }
+
+  /* Title bar lebih compact */
+  .titlebar { padding: 8px 12px; }
+  .tab-title { font-size: 10px; }
+  .status-bar { display: none; } /* hemat space */
+
+  /* Suggestions scroll horizontal, tidak wrap */
+  .suggestions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 12px 4px;
+    scrollbar-width: none;
+  }
+  .suggestions::-webkit-scrollbar { display: none; }
+  .sug { flex-shrink: 0; }
+
+  /* Terminal padding lebih kecil */
+  .terminal { padding: 12px 12px 6px; }
+
+  /* Input lebih compact, font 16px cegah iOS zoom */
+  .input-line {
+    padding: 8px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    gap: 4px;
+  }
+  #cmdInput {
+    font-size: 16px; /* WAJIB 16px di iOS agar tidak auto-zoom */
+  }
+  .ps1-live { font-size: 12px; }
+
+  /* Output panel: saat open, tampil sebagai bottom sheet 50% height */
+  .output-panel {
+    width: 100% !important;  /* override inline width dari resize */
+    height: 0;
+    transition: height 0.35s cubic-bezier(0.4,0,0.2,1);
+    border-left: none !important;
+  }
+  .output-panel.open {
+    width: 100% !important;
+    height: 50%;             /* panel bawah 50% layar */
+    border-top: 1px solid var(--border);
+  }
+
+  /* Panel tabs lebih kecil */
+  .ptab { padding: 4px 8px; font-size: 10px; }
+  .panel-close { font-size: 11px; }
+
+  /* Code display font lebih kecil agar tidak overflow */
+  pre#codeDisplay { font-size: 11px; padding: 10px; }
+
+  /* Boot text wrap */
+  .boot { font-size: 11px; word-break: break-word; }
+
+  /* Response text */
+  .response { padding: 8px 10px; font-size: 12px; }
+}
+
+/* ════════════════════════════════════════
+   VERY SMALL SCREENS — ≤ 380px
+   ════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .tab-title { display: none; }
+  .boot { font-size: 10px; }
+  pre#codeDisplay { font-size: 10px; }
+}
