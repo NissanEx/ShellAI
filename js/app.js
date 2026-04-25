@@ -18,6 +18,38 @@ let currentCode  = '';
 let currentLang  = 'python';
 let currentSvg   = '';
 
+// ══════════════════════════════════════════
+// MOBILE KEYBOARD FIX
+// Android Chrome mengubah window.innerHeight saat keyboard muncul.
+// Kita set height body = innerHeight secara dinamis agar layout
+// selalu pas dan input bar tidak tertutup keyboard.
+// ══════════════════════════════════════════
+function setAppHeight() {
+  document.body.style.height = window.innerHeight + 'px';
+}
+
+// Set saat load
+setAppHeight();
+
+// Update saat resize (keyboard muncul/hilang di Android)
+window.addEventListener('resize', () => {
+  setAppHeight();
+  // Scroll terminal ke bawah agar input tetap terlihat
+  setTimeout(() => {
+    terminal.scrollTop = terminal.scrollHeight;
+  }, 100);
+});
+
+// iOS Safari: gunakan visualViewport jika tersedia (lebih akurat)
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    document.body.style.height = window.visualViewport.height + 'px';
+    setTimeout(() => {
+      terminal.scrollTop = terminal.scrollHeight;
+    }, 100);
+  });
+}
+
 // ── INPUT ──
 cmdInput.addEventListener('keydown', async (e) => {
   if (e.key === 'Enter' && !isLoading) {
@@ -39,6 +71,14 @@ cmdInput.addEventListener('keydown', async (e) => {
     cmdInput.value = histIdx === -1 ? '' : cmdHistory[histIdx];
     e.preventDefault();
   }
+});
+
+// Mobile: saat input fokus, scroll ke bawah supaya input bar terlihat
+cmdInput.addEventListener('focus', () => {
+  setTimeout(() => {
+    terminal.scrollTop = terminal.scrollHeight;
+    cmdInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, 300); // delay untuk tunggu keyboard muncul
 });
 
 function useSug(el) {
@@ -63,6 +103,7 @@ function switchTab(tab) {
 function openPanel(tab) {
   if (!outputPanel.classList.contains('open')) {
     outputPanel.style.width = '';
+    outputPanel.style.height = '';
     outputPanel.style.transition = '';
   }
   outputPanel.classList.add('open');
@@ -72,10 +113,11 @@ function openPanel(tab) {
 function closePanel() {
   outputPanel.classList.remove('open');
   outputPanel.style.width = '';
+  outputPanel.style.height = '';
   outputPanel.style.transition = '';
 }
 
-// ── RESIZE ──
+// ── RESIZE (desktop only) ──
 const resizeHandle = document.getElementById('resizeHandle');
 const workspace    = document.getElementById('workspace');
 let isResizing = false;
@@ -88,9 +130,9 @@ resizeHandle.addEventListener('mousedown', () => {
 
 document.addEventListener('mousemove', (e) => {
   if (!isResizing) return;
-  const rect   = workspace.getBoundingClientRect();
+  const rect      = workspace.getBoundingClientRect();
   const fromRight = rect.width - (e.clientX - rect.left);
-  const newW   = Math.min(Math.max(fromRight, 260), rect.width * 0.72);
+  const newW      = Math.min(Math.max(fromRight, 260), rect.width * 0.72);
   outputPanel.style.transition = 'none';
   outputPanel.style.width = newW + 'px';
   outputPanel.classList.add('open');
@@ -329,8 +371,8 @@ No extra explanation.`
       codeLang.textContent = lang.toUpperCase();
       codeDisplay.innerHTML = highlight(code, lang);
 
-      const runBtn       = document.querySelector('.code-btn.run');
-      const isHtmlLang   = ['html', 'htm', 'css'].includes(lang);
+      const runBtn     = document.querySelector('.code-btn.run');
+      const isHtmlLang = ['html', 'htm', 'css'].includes(lang);
       runBtn.style.display = isHtmlLang ? 'inline-block' : 'none';
 
       openPanel('code');

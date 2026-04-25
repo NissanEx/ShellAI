@@ -16,14 +16,19 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── MOBILE: pakai dvh agar keyboard tidak potong layout ── */
+html {
+  height: 100%;
+  /* Android Chrome: cegah resize saat keyboard muncul */
+  overflow: hidden;
+}
+
 body {
   background: var(--bg);
   color: var(--white);
   font-family: 'JetBrains Mono', monospace;
   font-size: 13.5px;
-  height: 100vh;
-  height: 100dvh; /* dynamic viewport: menyesuaikan keyboard */
+  /* Gunakan height tetap dari JS, bukan 100vh */
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -57,7 +62,7 @@ body {
   flex: 1;
   display: flex;
   overflow: hidden;
-  min-height: 0; /* penting agar flex child bisa shrink */
+  min-height: 0;
 }
 
 /* ── LEFT: TERMINAL ── */
@@ -72,7 +77,7 @@ body {
 .terminal {
   flex: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scroll iOS */
+  -webkit-overflow-scrolling: touch;
   padding: 18px 20px 8px;
   display: flex;
   flex-direction: column;
@@ -125,9 +130,6 @@ body {
   background: transparent; border: 1px solid var(--border); color: var(--muted);
   font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 10px;
   border-radius: 4px; cursor: pointer; transition: border-color 0.15s, color 0.15s;
-  /* touch target lebih besar di HP */
-  min-height: 28px;
-  display: flex; align-items: center;
 }
 .sug:hover           { border-color: var(--cyan);   color: var(--cyan); }
 .sug.code-sug:hover  { border-color: var(--purple); color: var(--purple); }
@@ -138,18 +140,17 @@ body {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 10px 20px;
-  padding-bottom: max(16px, env(safe-area-inset-bottom)); /* iPhone notch */
+  padding: 10px 20px 16px;
   border-top: 1px solid var(--border);
   background: var(--bg);
+  /* safe area iPhone */
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
 }
 .ps1-live { white-space: nowrap; flex-shrink: 0; margin-right: 8px; }
 #cmdInput {
   flex: 1; background: transparent; border: none; outline: none;
   color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 13.5px;
   caret-color: var(--green);
-  /* cegah iOS auto-zoom (font minimal 16px) */
-  font-size: max(13.5px, 16px);
 }
 #cmdInput::placeholder { color: var(--muted); }
 
@@ -208,7 +209,6 @@ body {
   background: var(--surface); border: 1px solid var(--border); color: var(--muted);
   font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 10px;
   border-radius: 4px; cursor: pointer; transition: color 0.15s, border-color 0.15s;
-  min-height: 28px;
 }
 .code-btn:hover      { color: var(--green);  border-color: var(--green); }
 .code-btn.run:hover  { color: var(--yellow); border-color: var(--yellow); }
@@ -217,7 +217,6 @@ pre#codeDisplay {
   padding: 16px; font-size: 12.5px; line-height: 1.7;
   overflow: auto; white-space: pre; flex: 1; color: var(--white); tab-size: 2;
   min-height: 0;
-  -webkit-overflow-scrolling: touch;
 }
 pre#codeDisplay::-webkit-scrollbar { width: 4px; height: 4px; }
 pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -238,7 +237,6 @@ pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-rad
   flex: 1; display: flex; align-items: center; justify-content: center;
   padding: 20px; overflow: auto; position: relative; background: #080c10;
   min-height: 0;
-  -webkit-overflow-scrolling: touch;
 }
 .image-body img {
   max-width: 100%; max-height: 100%; border-radius: 8px;
@@ -273,88 +271,60 @@ pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-rad
 .toast.show { opacity: 1; transform: translateY(0); }
 
 /* ════════════════════════════════════════
-   MOBILE RESPONSIVE — ≤ 768px
+   MOBILE — ≤ 768px
    ════════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  body {
-    font-size: 12px;
-    /* iOS Safari: cegah bounce scroll di body */
-    position: fixed;
-    width: 100%;
-    top: 0; left: 0; right: 0; bottom: 0;
-  }
+  body { font-size: 12px; }
 
-  /* Workspace jadi column di mobile: panel di bawah terminal */
-  .workspace {
-    flex-direction: column;
-  }
+  /* Workspace: kolom (terminal atas, panel bawah) */
+  .workspace { flex-direction: column; }
 
-  /* Sembunyikan resize handle di mobile */
+  /* Sembunyikan resize handle */
   .resize-handle { display: none; }
 
-  /* Title bar lebih compact */
+  /* Title bar compact */
   .titlebar { padding: 8px 12px; }
   .tab-title { font-size: 10px; }
-  .status-bar { display: none; } /* hemat space */
+  .status-bar { display: none; }
 
-  /* Suggestions scroll horizontal, tidak wrap */
+  /* Suggestions: scroll horizontal */
   .suggestions {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 6px 12px 4px;
+    padding: 5px 12px 4px;
     scrollbar-width: none;
   }
   .suggestions::-webkit-scrollbar { display: none; }
-  .sug { flex-shrink: 0; }
+  .sug { flex-shrink: 0; font-size: 11px; }
 
-  /* Terminal padding lebih kecil */
-  .terminal { padding: 12px 12px 6px; }
+  /* Terminal padding compact */
+  .terminal { padding: 10px 12px 6px; }
+  .boot { font-size: 11px; word-break: break-word; }
+  .response { padding: 8px 10px; font-size: 12px; }
 
-  /* Input lebih compact, font 16px cegah iOS zoom */
+  /* Input: font 16px WAJIB di iOS/Android agar tidak auto-zoom */
   .input-line {
     padding: 8px 12px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
-    gap: 4px;
   }
-  #cmdInput {
-    font-size: 16px; /* WAJIB 16px di iOS agar tidak auto-zoom */
-  }
+  #cmdInput { font-size: 16px; }
   .ps1-live { font-size: 12px; }
 
-  /* Output panel: saat open, tampil sebagai bottom sheet 50% height */
+  /* Output panel: bottom sheet */
   .output-panel {
-    width: 100% !important;  /* override inline width dari resize */
+    width: 100% !important;
     height: 0;
     transition: height 0.35s cubic-bezier(0.4,0,0.2,1);
     border-left: none !important;
   }
   .output-panel.open {
     width: 100% !important;
-    height: 50%;             /* panel bawah 50% layar */
+    height: 50%;
     border-top: 1px solid var(--border);
   }
 
-  /* Panel tabs lebih kecil */
   .ptab { padding: 4px 8px; font-size: 10px; }
-  .panel-close { font-size: 11px; }
-
-  /* Code display font lebih kecil agar tidak overflow */
   pre#codeDisplay { font-size: 11px; padding: 10px; }
-
-  /* Boot text wrap */
-  .boot { font-size: 11px; word-break: break-word; }
-
-  /* Response text */
-  .response { padding: 8px 10px; font-size: 12px; }
-}
-
-/* ════════════════════════════════════════
-   VERY SMALL SCREENS — ≤ 380px
-   ════════════════════════════════════════ */
-@media (max-width: 380px) {
-  .tab-title { display: none; }
-  .boot { font-size: 10px; }
-  pre#codeDisplay { font-size: 10px; }
 }
