@@ -49,10 +49,8 @@ body {
   gap: 10px;
   flex-shrink: 0;
   user-select: none;
-  overflow: hidden;
-  white-space: nowrap;
 }
-.dots { display: flex; gap: 6px; flex-shrink: 0; }
+.dots { display: flex; gap: 6px; }
 .dot { width: 12px; height: 12px; border-radius: 50%; }
 .dot.red    { background: #ff5f57; }
 .dot.yellow { background: #ffbd2e; }
@@ -277,105 +275,79 @@ pre#codeDisplay::-webkit-scrollbar-thumb { background: var(--border); border-rad
    MOBILE ≤ 768px
    ════════════════════════════ */
 @media (max-width: 768px) {
+
   body { font-size: 11px; cursor: default; }
 
-  /* TITLEBAR: 1 baris flat, dots saja */
   .titlebar {
-    padding: 7px 12px;
-    padding-top: max(7px, env(safe-area-inset-top));
-    min-height: 0;
-    max-height: 36px;
+    padding: 6px 12px;
+    padding-top: max(6px, env(safe-area-inset-top));
+    max-height: 34px;
     overflow: hidden;
   }
-  .dot { width: 9px; height: 9px; }
+  .dot        { width: 9px; height: 9px; }
   .tab-title  { display: none !important; }
   .status-bar { display: none !important; }
 
-  /* WORKSPACE */
-  .workspace { flex-direction: column; position: relative; overflow: hidden; }
-  .resize-handle { display: none !important; }
-  .left-col { width: 100%; flex: 1; min-height: 0; }
+  .workspace      { overflow: hidden; position: relative; }
+  .resize-handle  { display: none !important; }
+  .left-col       { flex: 1; min-width: 0; width: 100%; }
 
-  /* SUGGESTIONS */
   .suggestions {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 4px 10px;
+    padding: 3px 10px;
     scrollbar-width: none;
     gap: 4px;
-    flex-shrink: 0;
   }
   .suggestions::-webkit-scrollbar { display: none; }
-  .sug { flex-shrink: 0; font-size: 9.5px; padding: 2px 7px; }
+  .sug { flex-shrink: 0; font-size: 9px; padding: 2px 6px; }
 
-  /* TERMINAL */
-  .terminal { padding: 8px 10px 4px; }
-  .boot { font-size: 10px; line-height: 1.5; margin-bottom: 8px; }
-  .entry { margin-bottom: 8px; }
-  .prompt-line { font-size: 10.5px; line-height: 1.5; }
-  .ps1-sign { margin-right: 4px; }
-  .response { padding: 6px 8px; font-size: 11px; line-height: 1.6; margin-top: 4px; }
-  .response .ai-tag { font-size: 9px; margin-bottom: 3px; }
+  .terminal         { padding: 8px 10px 4px; }
+  .boot             { font-size: 10px; line-height: 1.5; margin-bottom: 8px; }
+  .entry            { margin-bottom: 8px; }
+  .prompt-line      { font-size: 10px; line-height: 1.5; }
+  .ps1-sign         { margin-right: 4px; }
+  .response         { padding: 5px 8px; font-size: 10.5px; line-height: 1.55; margin-top: 3px; }
+  .response .ai-tag { font-size: 9px; margin-bottom: 2px; }
 
-  /* INPUT BAR */
   .input-line {
-    padding: 6px 10px;
+    padding: 5px 10px;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
     gap: 4px;
   }
-  .ps1-live { font-size: 10px; margin-right: 4px; }
+  .ps1-live { font-size: 9.5px; margin-right: 3px; }
   #cmdInput { font-size: 16px; }
 
-  /* OUTPUT PANEL — bottom sheet overlay
-     TERTUTUP: completely invisible & untouchable
-     TERBUKA (.open): slide up 58% */
+  /* KUNCI: display:none total saat tertutup — hilang dari flex row */
   .output-panel {
+    display: none !important;
+  }
+
+  /* Saat .open: muncul sebagai bottom sheet absolute */
+  .output-panel.open {
+    display: flex !important;
+    flex-direction: column;
     position: absolute !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    top: auto !important;
     width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    height: 0 !important;
-    max-height: 0 !important;
-    flex: none !important;
-    visibility: hidden !important;
-    opacity: 0;
-    pointer-events: none !important;
-    overflow: hidden !important;
-    border: none !important;
-    z-index: 50;
-    transition:
-      height 0.3s cubic-bezier(0.4,0,0.2,1),
-      max-height 0.3s cubic-bezier(0.4,0,0.2,1),
-      opacity 0.25s ease,
-      visibility 0s linear 0.3s;
-  }
-
-  .output-panel.open {
     height: 58% !important;
-    max-height: 58% !important;
-    visibility: visible !important;
-    opacity: 1;
-    pointer-events: auto !important;
-    overflow: hidden !important;
     border-top: 2px solid var(--cyan) !important;
-    transition:
-      height 0.3s cubic-bezier(0.4,0,0.2,1),
-      max-height 0.3s cubic-bezier(0.4,0,0.2,1),
-      opacity 0.25s ease,
-      visibility 0s linear 0s;
+    border-left: none !important;
+    z-index: 50;
+    overflow: hidden !important;
   }
 
-  .panel-topbar { padding: 5px 10px; }
-  .ptab { padding: 3px 7px; font-size: 9.5px; }
-  .panel-close { font-size: 12px; padding: 2px 6px; }
-  .code-header, .preview-header, .image-header { padding: 5px 10px; font-size: 10px; }
-  pre#codeDisplay { font-size: 10.5px; padding: 8px; line-height: 1.55; }
-  .toast { bottom: 10px; right: 10px; font-size: 10.5px; padding: 5px 12px; }
+  .panel-topbar                      { padding: 5px 10px; }
+  .ptab                              { padding: 3px 7px; font-size: 9.5px; }
+  .panel-close                       { font-size: 12px; padding: 2px 6px; }
+  .code-header, .preview-header,
+  .image-header                      { padding: 5px 10px; font-size: 10px; }
+  pre#codeDisplay                    { font-size: 10.5px; padding: 8px; line-height: 1.5; }
+
+  .toast { bottom: 10px; right: 10px; font-size: 10px; padding: 5px 11px; }
 }
 
 @supports (-webkit-touch-callout: none) {
